@@ -6,6 +6,13 @@
 
 **Student:** [Josecarlos Lusbel] · **Course:** CEN 5064 Software Design, Fall 2026 · **Partner:** [@JaiKaushik03]
 
+## Project Candiates
+Recipe Builder: possible features will be creating recipes, categorizing recipes, bookmarking recipes
+
+Fitness tracker: possible features will be creating exercises, adding exercises to a calendar, tracking weekly progress
+
+Study planner: possible features will be creating tasks and reminders for studying and allowing the user to add them in their schedule
+ 
 ## Project (approval paragraph — write this by Sun Aug 30)
 
 [One paragraph: What is the system? Who is it for? What are its 3–4 core features?
