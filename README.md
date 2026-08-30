@@ -5,18 +5,13 @@
 -->
 
 **Student:** [Josecarlos Lusbel] · **Course:** CEN 5064 Software Design, Fall 2026 · **Partner:** [@JaiKaushik03]
-
-## Project Candiates
-Recipe Builder: possible features will be creating recipes, categorizing recipes, bookmarking recipes
-
-Fitness tracker: possible features will be creating exercises, adding exercises to a calendar, tracking weekly progress
-
-Study planner: possible features will be creating tasks and reminders for studying and allowing the user to add them in their schedule
  
 ## Project (approval paragraph — write this by Sun Aug 30)
 
-[One paragraph: What is the system? Who is it for? What are its 3–4 core features?
-This paragraph is your approval request — see the Project Brief, Section 2.]
+<!--[One paragraph: What is the system? Who is it for? What are its 3–4 core features?
+This paragraph is your approval request — see the Project Brief, Section 2.]-->
+
+This project will be focused on creating a web application that allows users to track their fitness progress. Anyone who is interested in tracking their fitness regimen can use this app. The current planned core features for this project are allowing the user to create a workout, allowing them to schedule their created workout, and having the web app inform them if they are making any progress (they spent more time exercising this week than the previous week, for example).
 
 ## How to run
 
