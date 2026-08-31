@@ -27,10 +27,10 @@ instructor will follow it literally on conference days.]
 
 | Tier | Responsibilities in THIS system |
 |------|--------------------------------|
-| Presentation | [what your UI layer does] |
-| Service | [what your use-case/orchestration layer does] |
-| Domain | [your entities and business rules] |
-| Data | [how and where data is stored] |
+| Presentation | WorkoutView - modal where the user can fill out the details of their workout , CalendarView - lists all of the created workout as events on a calendar, ProgressView - shows user if they have progressed. |
+| Service | createWorkout() - responsible for creating a workout, by carrying out any validation and pushing data into the DB. loadWorkout() - responsible for loading all the workouts the user has created, by retrieving data from the DB |
+| Domain | Workout- must have at least 1 exercise chosen, Progress - for example, a user makes progress if they have worked out longer in the current week than the previous week |
+| Data | storeWorkout() - workout data is stored to a SQL DB through an API calls. loadWorkout() - retrieves workout data from a SQL DB through an API call. |
 
 ### C4 — Context & Container (Session 3 studio)
 
