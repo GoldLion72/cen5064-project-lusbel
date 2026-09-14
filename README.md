@@ -37,17 +37,17 @@ instructor will follow it literally on conference days.]
 ```mermaid
 %% Replace this placeholder with YOUR system's context diagram.
 flowchart TB
-    user([User]) -->|uses| system[Your System]
-    system -->|stores data in| db[(Database)]
+    user([WholeFit User]) -->|uses application by creating workouts as events in a calendar| system[WholeFit Web Application]
+    system -->|stores data in| db[(SQL Relational Database)]
 ```
 
 ```mermaid
 %% Container view: your containers should match the tier table above.
 flowchart TB
-    subgraph YourSystem [Your System]
-        ui[Web UI / CLI<br/>Presentation] --> api[Application / Service]
-        api --> domain[Domain Model]
-        domain --> db[(Database<br/>Data tier)]
+    subgraph WholeFit [WholeFit Web Application]
+        ui[Web UI<br/>Vue 3 frontend] --> api[Application / Service<br/>express.js REST API]
+        api --> domain[Workout Model<br/> Validates business logic, like ensuring a workout has exercises selected.]
+        domain --> db[(Database<br/>Stores all the data.)]
     end
 ```
 
@@ -56,10 +56,21 @@ flowchart TB
 ```mermaid
 %% Class diagram: your 3–4 core domain classes.
 classDiagram
-    class ExampleEntity {
-        -id: Long
-        -name: String
-        +doSomething()
+    class Workout {
+        -Exercises: Array of Exercise objects
+        +createWorkout()
+    }
+    class Progress {
+       -Exercises: Array of Exercise objects
+       -Sets: Array of Number
+       -Reps: Array of Number
+       +plotReps()
+       +plotSets()
+    }
+    class Calendar {
+      -Events: Array of Events
+      -CalendarView: String
+      +createEvent()
     }
 ```
 
@@ -70,12 +81,12 @@ sequenceDiagram
     participant UI
     participant S as Service
     participant D as Data
-    U->>UI: action
-    UI->>S: request
-    S->>D: save/load
-    D-->>S: result
-    S-->>UI: response
-    UI-->>U: confirmation
+    U->>UI: hits create button in Workout view
+    UI->>S: makes POST request to endpoint
+    S->>D: saves user data to SQL DB
+    D-->>S: sends response data
+    S-->>UI: frontend checks response
+    UI-->>U: tells user if the submission was successful or failed
 ```
 
 ## Architecture Decision Records
