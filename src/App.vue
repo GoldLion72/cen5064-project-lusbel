@@ -1,5 +1,8 @@
 <script setup>
-import WorkoutView from './components/WorkoutView.vue'
+import {ref} from 'vue'
+import CalendarView from './components/CalendarView.vue'
+
+const activeTab = ref("")
 </script>
 
 <template>
@@ -15,10 +18,19 @@ import WorkoutView from './components/WorkoutView.vue'
       <aside class="menu">
         <p class="menu-label">General</p>
         <ul class="menu-list">
-          <li><a>Calendar</a></li>
-          <li><a>Progress</a></li>
+          <li>
+            <a :class="{'is-active': activeTab === 'calendar'}" @click="activeTab='calendar'">Calendar</a>
+          </li>
+          <li>
+            <a :class="{'is-active': activeTab === 'progress'}" @click="activeTab='progress'">Progress</a>
+          </li>
         </ul>
       </aside>
+    </div>
+    <div class="column is-10">
+      <main>
+        <CalendarView v-if="activeTab === 'calendar'"/>
+      </main>
     </div>
   </div>
 </template>
