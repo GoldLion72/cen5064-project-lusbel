@@ -103,3 +103,4 @@ A one-line note per week keeps your commit story readable:
 
 - Week 1 (Aug 24): repo created, three ideas drafted
 - Week 2 (Aug 31): ...
+- Week 6 (Sep 21): Working on Add a login page to the website #1, where the user will be able to create and account, login, and afterwards they will be able to use the site by adding workouts to a calendar, and seeing their progress.
