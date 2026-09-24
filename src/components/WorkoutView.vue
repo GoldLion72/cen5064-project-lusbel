@@ -1,6 +1,8 @@
 <script setup>
 import { ref } from 'vue'
 
+const props = defineProps(["showModal"])
+
 const exerciseOptions = ref([
     {value: "benchPress", label: "Bench Press", category: "strength"},
     {value: "shoulderPress", label: "Shoulder Press", category: "strength"},
@@ -8,11 +10,11 @@ const exerciseOptions = ref([
     {value: "treadmill", label: "Treadmill", category: "cardio"}
 ])
 
-const exercises = ref([{exerciseName: "", sets: 0, reps: 0, duration: ""}])
+const exercises = ref([{exerciseName: "", sets: 0, reps: 0, weight: ""}])
 </script>
 
 <template>
-    <div class="modal">
+    <div class="modal" :class="{'is-active': props.showModal}">
         <div class="modal-background"></div>
         <div class="modal-card">
             <div class="modal-card-head">
@@ -20,13 +22,14 @@ const exercises = ref([{exerciseName: "", sets: 0, reps: 0, duration: ""}])
                 <button class="delete"></button>
             </div>
             <div class="modal-body">
-                <p>Enter your exercises below.</p>
+                <p class="subtitle">Enter your exercises below.</p>
                 <table class="table is-bordered is-striped">
                     <thead>
                         <tr>
                             <th>Exercise</th>
                             <th>Sets</th>
                             <th>Reps</th>
+                            <th>Weight (lbs)</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -43,9 +46,23 @@ const exercises = ref([{exerciseName: "", sets: 0, reps: 0, duration: ""}])
                                     </select>
                                 </div>
                             </td>
+                            <td>
+                                <input class="input is-info" v-model="exercise.sets" />
+                            </td>
+                            <td>
+                                <input class="input is-info" v-model="exercise.reps" />
+                            </td>
+                            <td>
+                                <input class="input is-info" v-model="exercise.weight" />
+                            </td>
                         </tr>
                     </tbody>
                 </table>
+            </div>
+            <div class="modal-card-footer">
+                <div class="buttons">
+                    <button class="button is-primary" @click="$emit('saveWorkout', exercises)">Save</button>
+                </div>
             </div>
         </div>
     </div>
