@@ -1,8 +1,5 @@
 <script setup>
-import {ref} from 'vue'
-import CalendarView from './components/CalendarView.vue'
-
-const activeTab = ref("")
+import { RouterLink, RouterView } from 'vue-router'
 </script>
 
 <template>
@@ -19,17 +16,17 @@ const activeTab = ref("")
         <p class="menu-label">General</p>
         <ul class="menu-list">
           <li>
-            <a :class="{'is-active': activeTab === 'calendar'}" @click="activeTab='calendar'">Calendar</a>
+            <RouterLink to="/calendar" active-class="is-active">Calendar</RouterLink>
           </li>
           <li>
-            <a :class="{'is-active': activeTab === 'progress'}" @click="activeTab='progress'">Progress</a>
+            <RouterLink to="/progress" active-class="is-active">Progress</RouterLink>
           </li>
         </ul>
       </aside>
     </div>
     <div class="column is-10">
       <main>
-        <CalendarView v-if="activeTab === 'calendar'"/>
+        <RouterView/>
       </main>
     </div>
   </div>
