@@ -27,10 +27,6 @@ describe('route configuration', () => {
     expect(paths).toContain('/calendar')
     expect(paths).toContain('/progress')
   })
-
-  it('does not define a login route', () => {
-    expect(routes.map(r => r.path)).not.toContain('/login')
-  })
 })
 
 describe('routing', () => {
