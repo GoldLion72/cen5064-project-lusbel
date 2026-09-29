@@ -20,7 +20,7 @@ Open up a terminal in VS Code and run the following commands
  ```
   git clone https://github.com/GoldLion72/cen5064-project-lusbel.git
   cd cen5064-project-lusbel/frontend
-  node -v  #it should be a newer version of node (20 and above)                 
+  node -v (Node.js 22.22.2+ or 24.15+)            
   npm install                    
   npm test
   npm run dev                       
