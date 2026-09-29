@@ -14,11 +14,16 @@ This paragraph is your approval request — see the Project Brief, Section 2.]--
 This project will be focused on creating a web application that allows users to track their fitness progress. Anyone who is interested in tracking their fitness regimen can use this app. The current planned core features for this project are allowing the user to create a workout, allowing them to schedule their created workout, and having the web app inform them if they are making any progress (they spent more time exercising this week than the previous week, for example).
 
 ## How to run
+### Frontend
 
-```
-[Exact commands to build and run your system from a clean clone.
-Update this every time the steps change — your partner and your
-instructor will follow it literally on conference days.]
+Open up a terminal in VS Code and run the following commands
+ ```
+  git clone https://github.com/GoldLion72/cen5064-project-lusbel.git
+  cd cen5064-project-lusbel/frontend
+  node -v (Node.js 22.22.2+ or 24.15+)            
+  npm install                    
+  npm test
+  npm run dev                       
 ```
 
 ## Architecture
@@ -104,3 +109,4 @@ A one-line note per week keeps your commit story readable:
 - Week 1 (Aug 24): repo created, three ideas drafted
 - Week 2 (Aug 31): ...
 - Week 6 (Sep 21): Working on Add a login page to the website #1, where the user will be able to create and account, login, and afterwards they will be able to use the site by adding workouts to a calendar, and seeing their progress.
+- Week 7 (Sep 28): created a new issue (#3-implement-routing-functionality) to include routing using Vue Router. Used Claude to try and see if AI could help generate the code as prompted.
