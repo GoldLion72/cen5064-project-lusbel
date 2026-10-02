@@ -1,5 +1,5 @@
 <script setup>
-import {reactive, ref} from 'vue';
+import {onMounted, reactive, ref} from 'vue';
 import FullCalendar from '@fullcalendar/vue3';
 import themePlugin from '@fullcalendar/vue3/themes/monarch';
 import dayGridPlugin from '@fullcalendar/vue3/daygrid';
@@ -49,6 +49,23 @@ const closeModal = (value) => {
         }
     }
 }
+
+const getEvents = async () => {
+    const response = await fetch('http:localhost:3000/events');
+
+    if(response.ok) {
+        try {
+            const events = await response.json();
+            workoutEvents.value = events;
+        } catch (error) {
+            alert("Could not retrieve events at this time.")
+            console.error(error);
+        }
+    } else {
+        alert("Could not retrieve events at this time.");
+    }
+}
+
 const handleSave = (data) => {
     console.log(`Got the following data: ${JSON.stringify(data)}`);
     workoutEvents.value.push({
@@ -86,6 +103,9 @@ const calendarOptions = reactive({
     eventClick: handleEventClick
 })
 
+onMounted(() => {
+    getEvents();
+})
 </script>
 
 <template>
