@@ -1,5 +1,5 @@
 const express = require('express');
-const events = require('./src/routes/events')
+const events = require('./routes/events')
 const app = express();
 const port  = 3000;
 
