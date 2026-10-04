@@ -1,12 +1,20 @@
-exports.getAllEvents = ((req, res) => {
-    //do some query stuff 
-})
+const {retrieveEvents, insertEvent} = require('../models/eventsModel');
 
-exports.getEventByID = ((req, res) => {
-    //query db here
-})
+function getAllEvents(req, res){
+    const events = retrieveEvents();
+    if(events.length === 0) {
+        res.status(200).json({success: false, message: "No events found.", data: events})
+    } else {
+        res.status(200).json({success: true, message: "Events were retrieved.", data: events});
+    }
+}
 
-exports.createEvent = ((req, res) => {
+function createEvent (req, res) {
+    console.log(`Incoming request body: ${JSON.stringify(req.body)}`);
+    const event = req.body;
+    insertEvent(event);
+    res.status(200).json({success: true, message: "Event was created.", data: {}});
+}
 
-})
+module.exports = {getAllEvents, createEvent};
 

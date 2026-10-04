@@ -10,7 +10,9 @@ const workoutDate = ref(new Date(props.workoutDetails.start).toISOString().split
 const exerciseOptions = ref([
     {value: "benchPress", label: "Bench Press", category: "strength"},
     {value: "shoulderPress", label: "Shoulder Press", category: "strength"},
+    {value: "latPulldown", label: "Lateral Pulldown", category: "strength"},
     {value: "bicepCurls", label: "Bicep Curls", category: "strength"},
+    {value: "tricepExtension", label: "Triceps Extension"},
     {value: "treadmill", label: "Treadmill", category: "cardio"}
 ])
 

@@ -51,24 +51,26 @@ const closeModal = (value) => {
 }
 
 const getEvents = async () => {
-    const response = await fetch('http:localhost:3000/events');
-
-    if(response.ok) {
-        try {
-            const events = await response.json();
-            workoutEvents.value = events;
-        } catch (error) {
-            alert("Could not retrieve events at this time.")
-            console.error(error);
+    try {
+        const response = await fetch('http://localhost:3000/api/events');
+        if(response.ok) {
+            const result = await response.json();
+            if(!result.success) {
+                alert("Could not retrieve events at this time.");
+            }
+            workoutEvents.value = result.data;
+        } else {
+            alert("Could not retrieve events at this time.");
         }
-    } else {
-        alert("Could not retrieve events at this time.");
+    } catch (error) {
+        alert("Could not retrieve events at this time.")
+        console.error(error);
     }
 }
 
 const handleSave = (data) => {
     console.log(`Got the following data: ${JSON.stringify(data)}`);
-    workoutEvents.value.push({
+    const eventData = {
         id: crypto.randomUUID(),
         title: "Workout - " + data.date,
         start: data.date,
@@ -76,9 +78,32 @@ const handleSave = (data) => {
         extendedProps: {
             workoutExercises: data.exercises
         }
-    })
+    }
+
+    workoutEvents.value.push(eventData);
     console.log(workoutEvents.value);
     showWorkout.value = false;
+
+    try {
+        const response = fetch("http://localhost:3000/api/events", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(eventData)
+        });
+
+        if(response.ok) {
+            if(response.success) {
+                alert("Event was saved.");
+            }
+        } else {
+            alert("Unable to save event at this time.");
+        }
+    } catch (error) {
+        alert("Unable to save event at this time.");
+        console.error(error);
+    }
 } 
 const calendarOptions = reactive({
     plugins: [themePlugin, dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin],
