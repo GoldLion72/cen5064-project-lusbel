@@ -1,4 +1,4 @@
-const {retrieveEvents, insertEvent} = require('../models/eventsModel');
+const {retrieveEvents, insertEvent, getEvent} = require('../models/eventsModel');
 
 function getAllEvents(req, res){
     const events = retrieveEvents();
@@ -16,5 +16,13 @@ function createEvent (req, res) {
     res.status(200).json({success: true, message: "Event was created.", data: {}});
 }
 
-module.exports = {getAllEvents, createEvent};
+function getEventByID(req, res) {
+    console.log(`Request parameters: ${JSON.stringify(req.params)}`);
+    const eventID = req.params.id;
+    const eventData = getEvent(eventID);
+
+    res.status(200).json({success: true, message: "Retrieved event.", data: eventData});
+}
+
+module.exports = {getAllEvents, createEvent, getEventByID};
 

@@ -36,7 +36,6 @@ function retrieveEvents() {
                 weight: exercise.EXERCISE_WEIGHT
             });
         }
-        console.log(`Adding the following data`)
         data.push(eventData);
     }
 
@@ -70,9 +69,41 @@ function insertEvent(event) {
         console.error(error);
         throw error;
     }
-    
-
-    
 }
 
-module.exports = {retrieveEvents, insertEvent}
+function getEvent(eventID) {
+    console.log(`Event ID: ${eventID}`);
+    const eventData = {
+        id: "",
+        title: "",
+        start: "",
+        allDay: "",
+        extendedProps: {
+            workoutExercises: []
+        }
+    }
+
+    const eventStmt = db.prepare("SELECT * FROM EVENT WHERE EVENT_ID = ?;");
+    const eventInfo = eventStmt.get(eventID);
+
+    eventData.id = eventInfo.EVENT_ID;
+    eventData.title = eventInfo.TITLE;
+    eventData.start = eventInfo.START_DATE;
+    eventData.allDay = eventInfo.ALL_DAY == 1 ? true : false;
+
+    const exercisesStmt = db.prepare("SELECT * FROM EVENT_EXERCISES WHERE EVENT_ID = ?;");
+    const exercisesInfo = exercisesStmt.all(eventID);
+
+    for(const exercise of exercisesInfo) {
+        eventData.extendedProps.workoutExercises.push({
+            exerciseName: exercise.EXERCISE_NAME,
+            sets: exercise.EXERCISE_SETS,
+            reps: exercise.EXERCISE_REPS,
+            weight: exercise.EXERCISE_WEIGHT
+        });
+    }
+
+    return eventData;
+}
+
+module.exports = {retrieveEvents, insertEvent, getEvent}

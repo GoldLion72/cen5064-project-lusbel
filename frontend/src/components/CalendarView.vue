@@ -16,7 +16,7 @@ const showWorkout = ref(false)
 const workoutEvents = ref([])
 const editingWorkout = ref(null)
 
-let eventProps = {
+let currentEvent = {
     id: null,
     title: "",
     start: new Date().toISOString().split('T')[0],
@@ -33,13 +33,13 @@ const handleDateClick = (info) => {
 const handleEventClick = (info) => {
     console.log(`Clicked on event with id: ${info.event.id}`);
     console.log(`Event details: ${JSON.stringify(info.event)}`);
-    eventProps = info.event;
+    currentEvent = info.event;
     showWorkout.value = true;
 }
 
 const closeModal = (value) => {
     showWorkout.value = value;
-    eventProps = {
+    currentEvent = {
         id: null,
         title: "",
         start: new Date().toISOString().split('T')[0],
@@ -68,8 +68,7 @@ const getEvents = async () => {
     }
 }
 
-const handleSave = (data) => {
-    console.log(`Got the following data: ${JSON.stringify(data)}`);
+const handleSave = async (data) => {
     const eventData = {
         id: crypto.randomUUID(),
         title: "Workout - " + data.date,
@@ -85,7 +84,7 @@ const handleSave = (data) => {
     showWorkout.value = false;
 
     try {
-        const response = fetch("http://localhost:3000/api/events", {
+        const response = await fetch("http://localhost:3000/api/events", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -93,12 +92,17 @@ const handleSave = (data) => {
             body: JSON.stringify(eventData)
         });
 
-        if(response.ok) {
-            if(response.success) {
-                alert("Event was saved.");
-            }
-        } else {
+        if(!response.ok) {
             alert("Unable to save event at this time.");
+            throw new Error(`Response status: ${response.status}`)
+        }
+        
+        const returnedData = await response.json();
+
+        console.log(`returned data: ${returnedData}`);
+
+        if(returnedData.success) {
+            alert("Saved event!");
         }
     } catch (error) {
         alert("Unable to save event at this time.");
@@ -136,7 +140,7 @@ onMounted(() => {
 <template>
     <WorkoutView v-if="showWorkout" 
     :show-modal="showWorkout"
-    :workout-details="eventProps"
+    :workout-details="currentEvent"
     @save-workout="handleSave" 
     @close-modal="closeModal" />
     <FullCalendar ref="calendar" :options="calendarOptions"/>
