@@ -79,8 +79,8 @@ const handleSave = async (data) => {
         }
     }
 
-    workoutEvents.value.push(eventData);
-    console.log(workoutEvents.value);
+    // workoutEvents.value.push(eventData);
+    // console.log(workoutEvents.value);
     showWorkout.value = false;
 
     try {
@@ -104,6 +104,17 @@ const handleSave = async (data) => {
         if(returnedData.success) {
             alert("Saved event!");
         }
+
+        const retrievedEvent = await fetch(`http://localhost:3000/api/events/${eventData.id}`);
+
+        if(!retrievedEvent.ok) {
+            throw new Error(`Failed to get event after creation: ${retrievedEvent.status}`);
+        }
+
+        const retrievedEventData = await retrievedEvent.json();
+
+        console.log(`retrievedEventData: ${JSON.stringify(retrievedEventData)}`);
+        workoutEvents.value.push(retrievedEventData.data);
     } catch (error) {
         alert("Unable to save event at this time.");
         console.error(error);
