@@ -1,4 +1,4 @@
-const db = require('../db')
+import db from '../db';
 
 function retrieveEvents() {
     const data = [];
@@ -106,4 +106,4 @@ function getEvent(eventID) {
     return eventData;
 }
 
-module.exports = {retrieveEvents, insertEvent, getEvent}
+export {retrieveEvents, insertEvent, getEvent};

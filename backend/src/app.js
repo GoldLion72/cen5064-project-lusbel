@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
-const events = require('./routes/events');
-const {errorHandler} = require('./middleware/errorHandler');
+import events from './routes/events';
+import errorHandler from './middleware/errorHandler';
 const app = express();
 const port  = 3000;
 
@@ -15,6 +15,4 @@ app.get('/', (req, res) => {
 
 app.use(errorHandler);
 
-app.listen(port, () => {
-    console.log(`Listening on port [${port}]`);
-})
+export default app;

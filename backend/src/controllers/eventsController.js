@@ -1,9 +1,9 @@
-const {retrieveEvents, insertEvent, getEvent} = require('../models/eventsModel');
+import {retrieveEvents, insertEvent, getEvent} from '../models/eventsModel';
 
 function getAllEvents(req, res){
     const events = retrieveEvents();
     if(events.length === 0) {
-        res.status(200).json({success: false, message: "No events found.", data: events})
+        res.status(400).json({success: false, message: "No events found.", data: events})
     } else {
         res.status(200).json({success: true, message: "Events were retrieved.", data: events});
     }
@@ -24,5 +24,5 @@ function getEventByID(req, res) {
     res.status(200).json({success: true, message: "Retrieved event.", data: eventData});
 }
 
-module.exports = {getAllEvents, createEvent, getEventByID};
+export {getAllEvents, createEvent, getEventByID};
 

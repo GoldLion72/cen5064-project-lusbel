@@ -10,4 +10,4 @@ try {
     console.error("Failed to read schema file:", error);
 }
 
-module.exports = db;
+export default db;
