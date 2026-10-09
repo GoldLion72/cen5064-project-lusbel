@@ -13,8 +13,6 @@ import {describe, it, expect, vi, afterEach} from 'vitest';
 
 const testID = crypto.randomUUID();
 
-
-
 describe('GET /api/events', () => {
     it('returns JSON', async () => {
         const response = await request(app).get('/api/events')
@@ -52,14 +50,34 @@ describe('GET /api/event/:id', () => {
         expect(response.status).toBe(200);
         expect(response.body.data.id).toBe(testID);
     })
-})
+});
 
 describe('POST /api/events', () => {
-    it.todo('creates an event', () => {
-        
+    it('creates an event', async () => {
+        const dummyEvent = {
+            id: testID, 
+            title: "Workout - Test", 
+            start: "10/07/2026", 
+            allDay: true, 
+            extendedProps: {
+                workoutExercises:[{exerciseName: "benchPress", sets: 5, reps: 5, weight: 205}]
+            }
+        }
+        const response = await request(app).post('/api/events').send(dummyEvent);
+
+        expect(response.status).toBe(200);
+        expect(response.body.success).toBe(true);
+        expect(response.body.message).toBe("Event was created.");
+    });
+
+    it('does not return 200 for a bad request', async () => {
+        const response = await request(app).post('/api/events').send({});
+
+        expect(response.status).toBe(500);
+        expect(response.body.success).toBe(false);
     })
-})
+});
 
 afterEach(() => {
     vi.restoreAllMocks();
-})
+});

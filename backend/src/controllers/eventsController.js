@@ -1,4 +1,4 @@
-import {retrieveEvents, insertEvent, getEvent} from '../models/eventsModel';
+import {retrieveEvents, insertEvent, getEvent} from '../models/eventsModel.js';
 
 function getAllEvents(req, res){
     const events = retrieveEvents();

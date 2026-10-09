@@ -1,7 +1,7 @@
-const express = require('express');
-const cors = require('cors');
-import events from './routes/events';
-import errorHandler from './middleware/errorHandler';
+import express from 'express';
+import cors from 'cors';
+import events from './routes/events.js';
+import errorHandler from './middleware/errorHandler.js';
 const app = express();
 const port  = 3000;
 
