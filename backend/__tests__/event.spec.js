@@ -2,19 +2,29 @@ vi.mock(import('../src/models/eventsModel'), async (importOriginal) => {
     const originalModule = await importOriginal();
     return {
         ...originalModule,
+        retrieveEvents: vi.fn(),
         getEvent: vi.fn(),
     }
     
 })
 import request from 'supertest';
 import app from '../src/app';
-import {getEvent} from '../src/models/eventsModel';
+import {retrieveEvents, getEvent} from '../src/models/eventsModel';
 import {describe, it, expect, vi, afterEach} from 'vitest';
 
 const testID = crypto.randomUUID();
+afterEach(() => {
+    vi.clearAllMocks();
+});
 
 describe('GET /api/events', () => {
     it('returns JSON', async () => {
+        retrieveEvents.mockReturnValue({
+            success: true,
+            message: "Retrieved events.",
+            data: {}
+        });
+
         const response = await request(app).get('/api/events')
         
         expect(response.status).toBe(200);
@@ -22,10 +32,23 @@ describe('GET /api/events', () => {
     });
 
     it('returns event data', async () => {
+        retrieveEvents.mockReturnValue([
+                {
+                    id: testID, 
+                    title: "Workout - 10/07/2026", 
+                    start: "10/07/2026", 
+                    allDay: true, 
+                    extendedProps: {
+                        workoutExercises:[{exerciseName: "benchPress", sets: 5, reps: 5, weight: 205}]
+                    }
+                }
+            ]
+        )
         const response = await request(app).get('/api/events');
-
+        
+        expect(retrieveEvents).toHaveBeenCalled();
         expect(response.status).toBe(200);
-        expect(response.body.data instanceof Array).toBe(true);
+        expect(response.body.data).toBeInstanceOf(Array);
         expect(response.body.success).toBe(true);
         expect(response.body.data.length > 0).toBe(true);
 
@@ -78,6 +101,3 @@ describe('POST /api/events', () => {
     })
 });
 
-afterEach(() => {
-    vi.restoreAllMocks();
-});
