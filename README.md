@@ -1,8 +1,9 @@
-# [Your Project Name]
+# WholeFit
 
 <!-- CI badge: after Session 4, replace ORG/REPO and the workflow filename, then uncomment:
 ![CI](https://github.com/ORG/REPO/actions/workflows/ci.yml/badge.svg)
 -->
+[![Node.js CI](https://github.com/GoldLion72/cen5064-project-lusbel/actions/workflows/node-ci.yml/badge.svg)](https://github.com/GoldLion72/cen5064-project-lusbel/actions/workflows/node-ci.yml)
 
 **Student:** [Josecarlos Lusbel] · **Course:** CEN 5064 Software Design, Fall 2026 · **Partner:** [@JaiKaushik03]
  
