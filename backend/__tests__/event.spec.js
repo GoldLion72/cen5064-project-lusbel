@@ -21,13 +21,9 @@ describe('GET /api/events', () => {
     it('returns JSON', async () => {
         retrieveEvents.mockReturnValue([]);
 
-        const response = await request(app).get('/api/events')
+        const response = await request(app).get('/api/events');
         
-        if(response.body.data.length === 0) {
-            expect(response.status).toBe(400);
-        } else {
-            expect(response.status).toBe(200);
-        }
+        expect(response.status).toBe(200);
         
         expect(response.headers['content-type']).toContain('application/json');
     });

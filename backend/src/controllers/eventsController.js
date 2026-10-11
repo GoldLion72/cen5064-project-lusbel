@@ -3,7 +3,7 @@ import {retrieveEvents, insertEvent, getEvent} from '../models/eventsModel.js';
 function getAllEvents(req, res){
     const events = retrieveEvents();
     if(events.length === 0) {
-        res.status(400).json({success: false, message: "No events found.", data: events})
+        res.status(200).json({success: false, message: "No events found.", data: events})
     } else {
         res.status(200).json({success: true, message: "Events were retrieved.", data: events});
     }
