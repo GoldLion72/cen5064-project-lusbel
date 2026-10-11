@@ -55,10 +55,10 @@ After the frontend is running, open up the localhost link in a browser to see th
 
 | Tier | Responsibilities in THIS system |
 |------|--------------------------------|
-| Presentation | WorkoutView - modal where the user can fill out the details of their workout , CalendarView - lists all of the created workout as events on a calendar, ProgressView - shows user if they have progressed. |
-| Service | createWorkout() - responsible for creating a workout, by carrying out any validation and pushing data into the DB. loadWorkout() - responsible for loading all the workouts the user has created, by retrieving data from the DB |
-| Domain | Workout- must have at least 1 exercise chosen, Progress - for example, a user makes progress if they have worked out longer in the current week than the previous week |
-| Data | storeWorkout() - workout data is stored to a SQL DB through an API calls. loadWorkout() - retrieves workout data from a SQL DB through an API call. |
+| Presentation | WorkoutView – modal where the user can fill out the details of their workout. CalendarView – allows the user to create an event and view all the events they have created. ProgressView – shows user if they have progressed |
+| Service | getEvents() – responsible for retrieving all the events that will be used in the presentation to load the events, through an API call. handleSave() – responsible for making an API call with the data that needs to be saved. Also returns the workout event that was newly created. |
+| Domain | Workout – must have at least 1 exercise chosen. Progress – a user makes progress if, for example, the number of sets of a certain exercise, increases within the specified date range. |
+| Data | retreiveEvents() – gets all the workout events stored in the database via SQL queries. getEvent()- responsible for retrieving an event with a certain event ID using SQL queries. insertEvent() – responsible for inserting a workout event in the database using SQL queries. |
 
 ### C4 — Context & Container (Session 3 studio)
 
@@ -74,7 +74,7 @@ flowchart TB
 flowchart TB
     subgraph WholeFit [WholeFit Web Application]
         ui[Web UI<br/>Vue 3 frontend] --> api[Application / Service<br/>express.js REST API]
-        api --> domain[Workout Model<br/> Validates business logic, like ensuring a workout has exercises selected.]
+        api --> domain[Workout Modal<br/> Validates business logic, like ensuring a workout has exercises selected.]
         domain --> db[(Database<br/>Stores all the data.)]
     end
 ```
@@ -84,21 +84,29 @@ flowchart TB
 ```mermaid
 %% Class diagram: your 3–4 core domain classes.
 classDiagram
-    class Workout {
-        -Exercises: Array of Exercise objects
-        +createWorkout()
+    class WorkoutView {
+        -id: String
+        -workoutDate: String
+        -exerciseOptions: Array of Object [exercise option objects]
+        -exercises: Array of Object [Exercise object]
+        +addExercise()
+        +sendData()
     }
-    class Progress {
-       -Exercises: Array of Exercise objects
-       -Sets: Array of Number
-       -Reps: Array of Number
-       +plotReps()
-       +plotSets()
+    class ProgressView {
+       -workoutEvents: Array of Object [Event objects]
+       -startDate: string
+       -endDate: string
+       +getEvents()
+       +plotEvents()
     }
     class Calendar {
-      -Events: Array of Events
-      -CalendarView: String
-      +createEvent()
+      -showWorkout: Boolean
+      -workoutEvents: Array of Object [Event object]
+      -currentEvent: Object [Event object]
+      -calendarOptions: Object
+      +closeModal(value)
+      +getEvents()
+      +handleSave()
     }
 ```
 
@@ -109,7 +117,7 @@ sequenceDiagram
     participant UI
     participant S as Service
     participant D as Data
-    U->>UI: hits create button in Workout view
+    U->>UI: hits Save button in WorkoutView
     UI->>S: makes POST request to endpoint
     S->>D: saves user data to SQL DB
     D-->>S: sends response data
@@ -123,7 +131,9 @@ Decisions live in [`docs/adr/`](docs/adr/). Start with ADR-001 in Session 4.
 
 | # | Decision | Status |
 |---|----------|--------|
-| [001](docs/adr/adr-001.md) | [What I am building and why] | [proposed] |
+| [001](docs/adr/adr-001.md) | What is being built | proposed |
+| [002](docs/adr/adr-002.md) | Use Vue Framework instead of React | proposed |
+| [003](docs/adr/adr-003.md) | Using SQLite over MySQL or Postgres | proposed |
 
 ## Weekly log (optional but recommended)
 
