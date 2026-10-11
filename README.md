@@ -15,17 +15,39 @@ This paragraph is your approval request — see the Project Brief, Section 2.]--
 This project will be focused on creating a web application that allows users to track their fitness progress. Anyone who is interested in tracking their fitness regimen can use this app. The current planned core features for this project are allowing the user to create a workout, allowing them to schedule their created workout, and having the web app inform them if they are making any progress (they spent more time exercising this week than the previous week, for example).
 
 ## How to run
-### Frontend
+Prerequisites: Install git, and the latest version of Node on your machine.
 
-Open up a terminal in VS Code and run the following commands
+Open up a terminal and run the following commands:
+```
+git clone https://github.com/GoldLion72/cen5064-project-lusbel.git
+cd cen5064-project-lusbel
+```
+This project is a web application, so there is a backend component and a frontend component.
+You need to run the backend first, otherwise the frontend won't be able to make any API calls.
+
+### Backend
+In your terminal, run the following commands:
+```
+cd backend
+npm install
+npm test
+npm run dev
+```
+
+### Frontend
+Open up another terminal and go back to the directory in which you cloned the project in and run this command:
+```
+cd cen5064-project-lusbel
+```
+In your terminal, run the following commands:
  ```
-  git clone https://github.com/GoldLion72/cen5064-project-lusbel.git
-  cd cen5064-project-lusbel/frontend
-  node -v (Node.js 22.22.2+ or 24.15+)            
+  cd frontend           
   npm install                    
   npm test
   npm run dev                       
 ```
+
+After the frontend is running, open up the localhost link in a browser to see the application.
 
 ## Architecture
 
