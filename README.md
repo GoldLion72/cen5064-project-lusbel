@@ -73,7 +73,7 @@ flowchart TB
 %% Container view: your containers should match the tier table above.
 flowchart TB
     subgraph WholeFit [WholeFit Web Application]
-        ui[Web UI<br/>Vue 3 frontend] --> api[Application / Service<br/>express.js REST API]
+        ui[Web UI<br/>Vue 3 frontend] --> api[Application / Service<br/>interacts with REST API written in express.js]
         api --> domain[Workout Modal<br/> Validates business logic, like ensuring a workout has exercises selected.]
         domain --> db[(Database<br/>Stores all the data.)]
     end
