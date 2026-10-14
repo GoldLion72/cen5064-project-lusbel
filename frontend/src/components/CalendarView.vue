@@ -11,9 +11,13 @@ import '@fullcalendar/vue3/skeleton.css';
 import '@fullcalendar/vue3/themes/monarch/theme.css';
 import '@fullcalendar/vue3/themes/monarch/palettes/purple.css';
 import WorkoutView from './WorkoutView.vue'
+import NotificationModal from './NotificationModal.vue';
 
 const showWorkout = ref(false)
 const workoutEvents = ref([])
+const showNotification = ref(false)
+const notificationTitle = ref("")
+const notificationMessage = ref("")
 const editingWorkout = ref(null)
 
 let currentEvent = {
@@ -48,6 +52,10 @@ const closeModal = (value) => {
             workoutExercises: [{exerciseName: "", sets: 0, reps: 0, weight: ""}]
         }
     }
+}
+
+const closeNotificationModal = (value) => {
+    showNotification.value = value;
 }
 
 const getEvents = async () => {
@@ -93,8 +101,13 @@ const handleSave = async (data) => {
         });
 
         if(!response.ok) {
-            alert("Unable to save event at this time.");
-            throw new Error(`Response status: ${response.status}`)
+            const data = await response.json();
+            notificationTitle.value = "Failed to submit event."
+            notificationMessage.value = data.message;
+            showNotification.value = true;
+            console.log(`showNotification: ${showNotification.value}`);
+            return;
+            // throw new Error(`Response status: ${response.status}`)
         }
         
         const returnedData = await response.json();
@@ -149,6 +162,7 @@ onMounted(() => {
 </script>
 
 <template>
+    <NotificationModal :title="notificationTitle" :message="notificationMessage" :isNotificationActive="showNotification" @close-notification="closeNotificationModal" />
     <WorkoutView v-if="showWorkout" 
     :show-modal="showWorkout"
     :workout-details="currentEvent"

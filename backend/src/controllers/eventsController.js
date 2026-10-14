@@ -1,4 +1,5 @@
 import {retrieveEvents, insertEvent, getEvent} from '../models/eventsModel.js';
+import { hasAnExercise } from '../domain/workout.js';
 
 function getAllEvents(req, res){
     const events = retrieveEvents();
@@ -12,6 +13,10 @@ function getAllEvents(req, res){
 function createEvent (req, res) {
     console.log(`Incoming request body: ${JSON.stringify(req.body)}`);
     const event = req.body;
+    if(!hasAnExercise(event)) {
+        res.status(400).json({success: false, message: "Event is missing exercises, or exercise info.", data: {}});
+        return;
+    }
     insertEvent(event);
     res.status(200).json({success: true, message: "Event was created.", data: {}});
 }
