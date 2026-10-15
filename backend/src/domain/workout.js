@@ -9,7 +9,7 @@ function hasAnExercise(event) {
         return false;
     } else {
         for(const exercise of workoutExercises) {
-            if(exercise.exerciseName == "" || (exercise.sets && exercise.sets <= 0) || (exercise.sets && exercise.reps <= 0) || exercise.weight == "") {
+            if(exercise.exerciseName == "" || !exercise.sets || exercise.sets <= 0 || !exercise.reps || exercise.reps <= 0 || exercise.weight == "") {
                 return false;
             }
         }
