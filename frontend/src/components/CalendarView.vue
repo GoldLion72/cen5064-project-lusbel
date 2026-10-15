@@ -54,10 +54,6 @@ const closeModal = (value) => {
     }
 }
 
-const closeNotificationModal = (value) => {
-    showNotification.value = value;
-}
-
 const getEvents = async () => {
     try {
         const response = await fetch('http://localhost:3000/api/events');
@@ -77,6 +73,7 @@ const getEvents = async () => {
 }
 
 const handleSave = async (data) => {
+    console.log("Inside handleSave");
     const eventData = {
         id: crypto.randomUUID(),
         title: "Workout - " + data.date,
@@ -86,6 +83,9 @@ const handleSave = async (data) => {
             workoutExercises: data.exercises
         }
     }
+
+    console.log("eventData:", eventData);
+    console.log("exercises:", eventData.extendedProps.workoutExercises)
 
     // workoutEvents.value.push(eventData);
     // console.log(workoutEvents.value);
@@ -101,6 +101,7 @@ const handleSave = async (data) => {
         });
 
         if(!response.ok) {
+            console.log("Response is not ok.")
             const data = await response.json();
             notificationTitle.value = "Failed to submit event."
             notificationMessage.value = data.message;
@@ -162,7 +163,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <NotificationModal :title="notificationTitle" :message="notificationMessage" :isNotificationActive="showNotification" @close-notification="closeNotificationModal" />
+    <NotificationModal :title="notificationTitle" :message="notificationMessage" v-model="showNotification" />
     <WorkoutView v-if="showWorkout" 
     :show-modal="showWorkout"
     :workout-details="currentEvent"

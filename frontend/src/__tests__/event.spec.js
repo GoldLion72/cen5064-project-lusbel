@@ -3,8 +3,16 @@ import { flushPromises, mount } from '@vue/test-utils'
 import CalendarView from '../components/CalendarView.vue'
 import WorkoutView from '../components/WorkoutView.vue'
 
-beforeEach(() => {
-    vi.stubGlobal('fetch', vi.fn(async (url, options = {}) => ({
+
+
+// afterEach(() => {
+//     vi.unstubAllGlobals();
+//     vi.resetAllMocks();
+// })
+
+describe('event creation', () => {
+    beforeEach(() => {
+        vi.stubGlobal('fetch', vi.fn(async (url, options = {}) => ({
             ok: true,
             status: 200,
             json: async () => ({
@@ -13,15 +21,21 @@ beforeEach(() => {
                 data: options.method === 'POST' ? JSON.parse(options.body) : []
             })
         })));
-})
+    })
 
-describe('event creation', () => {
+    afterEach(() => {
+        vi.unstubAllGlobals();
+        vi.resetAllMocks();
+    })
+
     it('should have event modal display', async () => {
         const wrapper = mount(CalendarView);
 
         await wrapper.get('button[aria-label="Add Event"]').trigger('click');
 
-        expect(wrapper.get('.modal-card-title').text()).toBe('Workout Details');
+        const workoutModal = wrapper.getComponent({name: 'WorkoutView'});
+
+        expect(workoutModal.classes()).toContain('is-active');
     });
 
     it('should submit event and retrieve an event', async () => {
@@ -95,8 +109,29 @@ describe('event creation', () => {
 
         expect(wrapper.vm.workoutEvents).toEqual(dummyData);
     });
-});
 
-afterEach(() => {
-    vi.unstubAllGlobals();
-})
+    it('should display error on submit when no exercises are present', async () => {
+        globalThis.fetch = vi.fn().mockResolvedValue({
+            status: 400,
+            ok: false,
+            json: () => ({
+                success: false,
+                message: "Event is missing exercises, or exercise info.",
+                data: {}
+            })
+        })
+
+        const wrapper = mount(CalendarView);
+
+        console.log("workoutEvents:", wrapper.vm.workoutEvents);
+        await wrapper.get('button[aria-label="Add Event"]').trigger('click');
+
+        const workoutModal = wrapper.getComponent({name: 'WorkoutView'});
+
+        expect(workoutModal.classes()).toContain('is-active');
+
+        await workoutModal.get("#saveBtn").trigger('click');
+
+        expect(wrapper.vm.showNotification).toBe(true);
+    })
+});
