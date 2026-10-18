@@ -93,8 +93,24 @@ describe('POST /api/events', () => {
     it('does not return 200 for a bad request', async () => {
         const response = await request(app).post('/api/events').send({});
 
-        expect(response.status).toBe(500);
+        expect([400, 500]).toContain(response.status);
         expect(response.body.success).toBe(false);
+    })
+
+    it('returns 400 if an event has no exercises', async () => {
+        const dummyData = {
+            id: "foo",
+            title: "bar",
+            start: "10/14/2026",
+            allDay: true,
+            extendedProps: {
+                workoutExercises: []
+            }
+        };
+
+        const response = await request(app).post('/api/events').send(dummyData);
+
+        expect(response.status).toBe(400);
     })
 });
 

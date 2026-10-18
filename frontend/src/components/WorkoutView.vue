@@ -103,7 +103,7 @@ onMounted(() => {
             </div>
             <div class="modal-card-foot">
                 <div class="buttons">
-                    <button class="button is-primary" @click="sendData">Save</button>
+                    <button id="saveBtn" class="button is-primary" @click="sendData">Save</button>
                 </div>
             </div>
         </div>

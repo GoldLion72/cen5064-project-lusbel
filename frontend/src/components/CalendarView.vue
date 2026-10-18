@@ -11,9 +11,13 @@ import '@fullcalendar/vue3/skeleton.css';
 import '@fullcalendar/vue3/themes/monarch/theme.css';
 import '@fullcalendar/vue3/themes/monarch/palettes/purple.css';
 import WorkoutView from './WorkoutView.vue'
+import NotificationModal from './NotificationModal.vue';
 
 const showWorkout = ref(false)
 const workoutEvents = ref([])
+const showNotification = ref(false)
+const notificationTitle = ref("")
+const notificationMessage = ref("")
 const editingWorkout = ref(null)
 
 let currentEvent = {
@@ -69,6 +73,7 @@ const getEvents = async () => {
 }
 
 const handleSave = async (data) => {
+    console.log("Inside handleSave");
     const eventData = {
         id: crypto.randomUUID(),
         title: "Workout - " + data.date,
@@ -79,9 +84,12 @@ const handleSave = async (data) => {
         }
     }
 
+    console.log("eventData:", eventData);
+    console.log("exercises:", eventData.extendedProps.workoutExercises)
+
     // workoutEvents.value.push(eventData);
     // console.log(workoutEvents.value);
-    showWorkout.value = false;
+    // showWorkout.value = false;
 
     try {
         const response = await fetch("http://localhost:3000/api/events", {
@@ -93,8 +101,14 @@ const handleSave = async (data) => {
         });
 
         if(!response.ok) {
-            alert("Unable to save event at this time.");
-            throw new Error(`Response status: ${response.status}`)
+            console.log("Response is not ok.")
+            const data = await response.json();
+            notificationTitle.value = "Failed to submit event."
+            notificationMessage.value = data.message;
+            showNotification.value = true;
+            console.log(`showNotification: ${showNotification.value}`);
+            return;
+            // throw new Error(`Response status: ${response.status}`)
         }
         
         const returnedData = await response.json();
@@ -115,6 +129,7 @@ const handleSave = async (data) => {
 
         console.log(`retrievedEventData: ${JSON.stringify(retrievedEventData)}`);
         workoutEvents.value.push(retrievedEventData.data);
+        showWorkout.value = false;
     } catch (error) {
         alert("Unable to save event at this time.");
         console.error(error);
@@ -154,5 +169,6 @@ onMounted(() => {
     :workout-details="currentEvent"
     @save-workout="handleSave" 
     @close-modal="closeModal" />
+    <NotificationModal :title="notificationTitle" :message="notificationMessage" v-model="showNotification" />
     <FullCalendar ref="calendar" :options="calendarOptions"/>
 </template>
