@@ -89,7 +89,7 @@ const handleSave = async (data) => {
 
     // workoutEvents.value.push(eventData);
     // console.log(workoutEvents.value);
-    showWorkout.value = false;
+    // showWorkout.value = false;
 
     try {
         const response = await fetch("http://localhost:3000/api/events", {
@@ -129,6 +129,7 @@ const handleSave = async (data) => {
 
         console.log(`retrievedEventData: ${JSON.stringify(retrievedEventData)}`);
         workoutEvents.value.push(retrievedEventData.data);
+        showWorkout.value = false;
     } catch (error) {
         alert("Unable to save event at this time.");
         console.error(error);
@@ -163,11 +164,11 @@ onMounted(() => {
 </script>
 
 <template>
-    <NotificationModal :title="notificationTitle" :message="notificationMessage" v-model="showNotification" />
     <WorkoutView v-if="showWorkout" 
     :show-modal="showWorkout"
     :workout-details="currentEvent"
     @save-workout="handleSave" 
     @close-modal="closeModal" />
+    <NotificationModal :title="notificationTitle" :message="notificationMessage" v-model="showNotification" />
     <FullCalendar ref="calendar" :options="calendarOptions"/>
 </template>

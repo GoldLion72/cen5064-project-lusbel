@@ -1,5 +1,5 @@
 function hasAnExercise(event) {
-    if(!event) {
+    if(!event || Object.keys(event).length == 0) {
         return false;
     }
     
