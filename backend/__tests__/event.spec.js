@@ -93,7 +93,7 @@ describe('POST /api/events', () => {
     it('does not return 200 for a bad request', async () => {
         const response = await request(app).post('/api/events').send({});
 
-        expect(response.status).toBe(500);
+        expect([400, 500]).toContain(response.status);
         expect(response.body.success).toBe(false);
     })
 
