@@ -2,7 +2,8 @@
 import { onMounted, ref } from 'vue'
 
 const props = defineProps(["showModal", "workoutDetails"])
-const emit = defineEmits(['saveWorkout'])
+const emit = defineEmits(['saveWorkout', 'deleteWorkout'])
+const showWorkout = defineModel();
 
 const id = ref(props.workoutDetails.id)
 const workoutDate = ref(new Date(props.workoutDetails.start).toISOString().split('T')[0])
@@ -32,9 +33,12 @@ const sendData = () => {
     emit('saveWorkout', workoutData)
 }
 
+const deleteWorkout = () => {
+    emit('deleteWorkout', props.workoutDetails.id);
+}
+
 onMounted(() => {
-    console.log(`Is workoutDate a date? ${workoutDate.value instanceof Date ? "Yes" : "No"}`)
-    console.log(`Workout date: ${workoutDate.value}`)
+    console.log(props)
 })
 </script>
 
@@ -44,7 +48,7 @@ onMounted(() => {
         <div class="modal-card">
             <div class="modal-card-head">
                 <p class="modal-card-title">Workout Details</p>
-                <button class="delete" @click="$emit('close-modal', false)"></button>
+                <button class="delete" @click="showWorkout=false"></button>
             </div>
             <div class="modal-card-body">
                 <div class="field">
@@ -104,6 +108,7 @@ onMounted(() => {
             <div class="modal-card-foot">
                 <div class="buttons">
                     <button id="saveBtn" class="button is-primary" @click="sendData">Save</button>
+                    <button id="deleteBtn" class="button is-danger" v-if="id" @click="deleteWorkout">Delete</button>
                 </div>
             </div>
         </div>
