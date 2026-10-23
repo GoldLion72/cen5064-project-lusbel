@@ -9,24 +9,40 @@ import WorkoutView from '../components/WorkoutView.vue'
 //     vi.unstubAllGlobals();
 //     vi.resetAllMocks();
 // })
+beforeEach(() => {
+    vi.stubGlobal('fetch', vi.fn(async (url, options = {}) => ({
+        ok: true,
+        status: 200,
+        json: async () => ({
+            success: true,
+            message: "Retrived event.",
+            data: options.method === 'POST' ? JSON.parse(options.body) : []
+        })
+    })));
+})
+
+afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.resetAllMocks();
+})
 
 describe('event creation', () => {
-    beforeEach(() => {
-        vi.stubGlobal('fetch', vi.fn(async (url, options = {}) => ({
-            ok: true,
-            status: 200,
-            json: async () => ({
-                success: true,
-                message: "Retrived event.",
-                data: options.method === 'POST' ? JSON.parse(options.body) : []
-            })
-        })));
-    })
+    // beforeEach(() => {
+    //     vi.stubGlobal('fetch', vi.fn(async (url, options = {}) => ({
+    //         ok: true,
+    //         status: 200,
+    //         json: async () => ({
+    //             success: true,
+    //             message: "Retrived event.",
+    //             data: options.method === 'POST' ? JSON.parse(options.body) : []
+    //         })
+    //     })));
+    // })
 
-    afterEach(() => {
-        vi.unstubAllGlobals();
-        vi.resetAllMocks();
-    })
+    // afterEach(() => {
+    //     vi.unstubAllGlobals();
+    //     vi.resetAllMocks();
+    // })
 
     it('should have event modal display', async () => {
         const wrapper = mount(CalendarView);
@@ -123,7 +139,7 @@ describe('event creation', () => {
 
         const wrapper = mount(CalendarView);
 
-        console.log("workoutEvents:", wrapper.vm.workoutEvents);
+        // console.log("workoutEvents:", wrapper.vm.workoutEvents);
         await wrapper.get('button[aria-label="Add Event"]').trigger('click');
 
         const workoutModal = wrapper.getComponent({name: 'WorkoutView'});
@@ -135,3 +151,202 @@ describe('event creation', () => {
         expect(wrapper.vm.showNotification).toBe(true);
     })
 });
+
+describe('event deletion', () => {
+    it('should not display the delete button on new event', async () => {
+        const wrapper = mount(CalendarView);
+
+        await wrapper.get('button[aria-label="Add Event"]').trigger('click');
+
+        expect(() => wrapper.get('#deleteBtn')).toThrow();
+    });
+
+    it('should display the delete button in an existing event.', async () => {
+        const wrapper = mount(CalendarView);
+        const randomID = crypto.randomUUID();
+
+        const dummyData = {
+            event: {
+                id: randomID,
+                title: "Workout - 2026-10-21",
+                start: "10/21/2026",
+                allDay: true,
+                extendedProps: {
+                    workoutExercises: [{
+                        exerciseName: "brenchPress",
+                        sets: 5,
+                        reps: 5,
+                        weight: 210
+                    }]
+                }
+            }
+        }
+
+        await wrapper.getComponent({ref: "calendar"}).props('options').eventClick(dummyData);
+
+        expect(wrapper.vm.currentEvent).toEqual(dummyData.event);
+
+        const button = wrapper.get('#deleteBtn');
+
+        expect(button.text()).toBe('Delete');
+    });
+
+    it('should remove the event upon deletion', async () => {
+        const randomID = crypto.randomUUID();
+
+        let dummyGetData = [
+            {
+                id: crypto.randomUUID(),
+                title: "Workout - Test One",
+                start: "10/19/2026",
+                allDay: true,
+                extendedProps: {
+                    workoutExercises: [
+                        {
+                            exerciseName: "benchPress",
+                            sets: 5,
+                            reps: 5,
+                            weight: 210
+                        }
+                    ]
+                }
+            },
+            {
+                id: randomID,
+                title: "Workout - Test Two",
+                start: "10/20/2026",
+                allDay: true,
+                extendedProps: {
+                    workoutExercises: [
+                        {
+                            exerciseName: "shoulderPress",
+                            sets: 5,
+                            reps: 10,
+                            weight: 60
+                        }
+                    ]
+                }
+            }        
+        ];
+
+        const eventIDToRemove = dummyGetData[0].id;
+
+        const expectedDataAfterDelete = [
+            {
+                id: randomID,
+                title: "Workout - Test Two",
+                start: "10/20/2026",
+                allDay: true,
+                extendedProps: {
+                    workoutExercises: [
+                        {
+                            exerciseName: "shoulderPress",
+                            sets: 5,
+                            reps: 10,
+                            weight: 60
+                        }
+                    ]
+                }
+            }  
+        ]
+
+        globalThis.fetch = vi.fn((url, options = {}) => {
+            if(url === "http://localhost:3000/api/events" && (!options.method || options.method === "GET")) {
+                return {
+                    status: 200,
+                    ok: true,
+                    json: () => ({
+                        success: true,
+                        message: "Events were retrieved.",
+                        data: dummyGetData
+                    })
+                }
+            } else if(url === `http://localhost:3000/api/events/${eventIDToRemove}` && options.method === "DELETE") {
+                dummyGetData = dummyGetData.filter(event => event.id !== eventIDToRemove);
+                return {
+                    status: 200,
+                    ok: true
+                }
+            }
+        })
+        
+        const wrapper = mount(CalendarView);
+        await flushPromises();
+
+        expect(wrapper.vm.workoutEvents).toEqual(dummyGetData);
+
+        await wrapper.vm.handleDelete(eventIDToRemove);
+        await flushPromises();
+
+        expect(wrapper.vm.workoutEvents).toEqual(expectedDataAfterDelete);
+    });
+
+    it('should display error message on failure', async () => {
+        let dummyGetData = [
+            {
+                id: crypto.randomUUID(),
+                title: "Workout - Test One",
+                start: "10/19/2026",
+                allDay: true,
+                extendedProps: {
+                    workoutExercises: [
+                        {
+                            exerciseName: "benchPress",
+                            sets: 5,
+                            reps: 5,
+                            weight: 210
+                        }
+                    ]
+                }
+            },
+            {
+                id: crypto.randomUUID(),
+                title: "Workout - Test Two",
+                start: "10/20/2026",
+                allDay: true,
+                extendedProps: {
+                    workoutExercises: [
+                        {
+                            exerciseName: "shoulderPress",
+                            sets: 5,
+                            reps: 10,
+                            weight: 60
+                        }
+                    ]
+                }
+            }        
+        ];
+
+        const eventIDToRemove = dummyGetData[0].id;
+
+        globalThis.fetch = vi.fn((url, options = {}) => {
+            if(url === "http://localhost:3000/api/events" && (!options.method || options.method === "GET")) {
+                return {
+                    status: 200,
+                    ok: true,
+                    json: () => ({
+                        success: true,
+                        message: "Events were retrieved.",
+                        data: dummyGetData
+                    })
+                }
+            } else if(url === `http://localhost:3000/api/events/${eventIDToRemove}` && options.method === "DELETE") {
+                return {
+                    status: 500,
+                    ok: false
+                }
+            }
+        });
+
+        const wrapper = mount(CalendarView);
+        await flushPromises();
+
+        expect(wrapper.vm.workoutEvents).toEqual(dummyGetData);
+
+        await wrapper.vm.handleDelete(eventIDToRemove);
+        await flushPromises();
+
+        expect(wrapper.vm.showNotification).toBe(true);
+        expect(wrapper.vm.notificationTitle).toBe('Failed to delete workout');
+    });
+})
