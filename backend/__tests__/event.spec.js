@@ -72,6 +72,37 @@ describe('GET /api/event/:id', () => {
     })
 });
 
+describe('DELETE /api/events/:id', () => {
+    it('deletes an event that exists', async () => {
+        const randomID = crypto.randomUUID();
+        const dummyEvent = {
+            id: randomID,
+            title: "Workout - Test 10/23/2026",
+            start: "10/23/2026",
+            allDay: true,
+            extendedProps: {
+                workoutExercises:[{exerciseName: "benchPress", sets: 5, reps: 5, weight: 205}]
+            }
+        };
+
+        const postResponse = await request(app).post('/api/events').send(dummyEvent);
+
+        expect(postResponse.status).toBe(200);
+
+        const deleteResponse = await request(app).delete(`/api/events/${randomID}`);
+
+        expect(deleteResponse.status).toBe(200);
+    })
+
+    it('fails deleting an event that does not exist', async () => {
+        const randomID = crypto.randomUUID();
+
+        const response = await request(app).delete(`/api/events/${randomID}`);
+
+        expect(response.status).toBe(500);
+    })
+});
+
 describe('POST /api/events', () => {
     it('creates an event', async () => {
         const dummyEvent = {
