@@ -17,4 +17,11 @@ function hasAnExercise(event) {
     return true;
 }
 
-export {hasAnExercise}
+function wasDeleted(changes) {
+    if(!changes || changes === 0) {
+        return false;
+    }
+    return true;
+}
+
+export {hasAnExercise, wasDeleted}
