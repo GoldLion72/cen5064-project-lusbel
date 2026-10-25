@@ -33,7 +33,7 @@ describe('GET /api/events', () => {
                 {
                     id: testID, 
                     title: "Workout - 10/07/2026", 
-                    start: "10/07/2026", 
+                    start: "2026-10-07", 
                     allDay: true, 
                     extendedProps: {
                         workoutExercises:[{exerciseName: "benchPress", sets: 5, reps: 5, weight: 205}]
@@ -50,6 +50,16 @@ describe('GET /api/events', () => {
         expect(response.body.data.length > 0).toBe(true);
 
     })
+
+    it('is considered successful if no events are returned.', async () => {
+        retrieveEvents.mockReturnValue([]);
+
+        const response = await request(app).get('/api/events');
+
+        expect(response.status).toBe(200);
+        expect(response.body.success).toBe(true);
+        expect(response.body.message).toBe("No events found.");
+    });
 });
 
 describe('GET /api/event/:id', () => {
@@ -57,7 +67,7 @@ describe('GET /api/event/:id', () => {
         getEvent.mockReturnValue({
             id: testID, 
             title: "Workout - 10/07/2026", 
-            start: "10/07/2026", 
+            start: "2026-10-07", 
             allDay: true, 
             extendedProps: {
                 workoutExercises:[{exerciseName: "benchPress", sets: 5, reps: 5, weight: 205}]
@@ -78,7 +88,7 @@ describe('DELETE /api/events/:id', () => {
         const dummyEvent = {
             id: randomID,
             title: "Workout - Test 10/23/2026",
-            start: "10/23/2026",
+            start: "2026-10-23",
             allDay: true,
             extendedProps: {
                 workoutExercises:[{exerciseName: "benchPress", sets: 5, reps: 5, weight: 205}]
@@ -108,7 +118,7 @@ describe('POST /api/events', () => {
         const dummyEvent = {
             id: testID, 
             title: "Workout - Test", 
-            start: "10/07/2026", 
+            start: "2026-10-07", 
             allDay: true, 
             extendedProps: {
                 workoutExercises:[{exerciseName: "benchPress", sets: 5, reps: 5, weight: 205}]
@@ -132,7 +142,7 @@ describe('POST /api/events', () => {
         const dummyData = {
             id: "foo",
             title: "bar",
-            start: "10/14/2026",
+            start: "2026-10-14",
             allDay: true,
             extendedProps: {
                 workoutExercises: []

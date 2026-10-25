@@ -3,7 +3,8 @@ import Database from 'better-sqlite3';
 import path from 'node:path'
 import { fileURLToPath } from 'node:url';
 
-const db = new Database('app.db');
+const fileToUse = process.env.NODE_ENV === "test" ? ":memory:" : "app.db";
+const db = new Database(fileToUse);
 
 db.pragma('journal_mode = WAL');
 
