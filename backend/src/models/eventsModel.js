@@ -1,4 +1,5 @@
 import db from '../db/index.js';
+import { wasDeleted } from '../domain/workout.js';
 
 function retrieveEvents() {
     const data = [];
@@ -106,4 +107,24 @@ function getEvent(eventID) {
     return eventData;
 }
 
-export {retrieveEvents, insertEvent, getEvent};
+function deleteEvent(id) {
+    console.log("Inside delete event. Working with id:", id);
+    try {
+        const deleteExercisesStmt = db.prepare("DELETE FROM EVENT_EXERCISES WHERE EVENT_ID = ?;");
+        const exercisesInfo = deleteExercisesStmt.run(id);
+        console.log(`Changes made to the exercises table: ${exercisesInfo.changes}`);
+        
+        const deleteEventStmt = db.prepare("DELETE FROM EVENT WHERE EVENT_ID = ?;");
+        const eventInfo = deleteEventStmt.run(id);
+        console.log(`Changes made to the event table: ${eventInfo.changes}`);
+        
+        if(!wasDeleted(exercisesInfo.changes) || !wasDeleted(eventInfo.changes)) {
+            throw new Error("Deletion failed.")
+        }
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+}
+
+export {retrieveEvents, insertEvent, getEvent, deleteEvent};

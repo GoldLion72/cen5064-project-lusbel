@@ -1,10 +1,10 @@
-import {retrieveEvents, insertEvent, getEvent} from '../models/eventsModel.js';
+import {retrieveEvents, insertEvent, getEvent, deleteEvent} from '../models/eventsModel.js';
 import { hasAnExercise } from '../domain/workout.js';
 
 function getAllEvents(req, res){
     const events = retrieveEvents();
     if(events.length === 0) {
-        res.status(200).json({success: false, message: "No events found.", data: events})
+        res.status(200).json({success: true, message: "No events found.", data: events})
     } else {
         res.status(200).json({success: true, message: "Events were retrieved.", data: events});
     }
@@ -29,5 +29,14 @@ function getEventByID(req, res) {
     res.status(200).json({success: true, message: "Retrieved event.", data: eventData});
 }
 
-export {getAllEvents, createEvent, getEventByID};
+function deleteEventByID(req, res) {
+    console.log("Inside deleteEventByID.");
+    console.log(`Request parameters: ${JSON.stringify(req.params)}`);
+    const eventID = req.params.id;
+
+    deleteEvent(eventID);
+    res.status(200).json({success: true, message: "Deleted event.", data: {}});
+}
+
+export {getAllEvents, createEvent, getEventByID, deleteEventByID};
 

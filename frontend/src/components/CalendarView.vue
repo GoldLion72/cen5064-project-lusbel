@@ -1,5 +1,5 @@
 <script setup>
-import {onMounted, reactive, ref} from 'vue';
+import {onMounted, reactive, ref, watch } from 'vue';
 import FullCalendar from '@fullcalendar/vue3';
 import themePlugin from '@fullcalendar/vue3/themes/monarch';
 import dayGridPlugin from '@fullcalendar/vue3/daygrid';
@@ -18,9 +18,10 @@ const workoutEvents = ref([])
 const showNotification = ref(false)
 const notificationTitle = ref("")
 const notificationMessage = ref("")
+
 const editingWorkout = ref(null)
 
-let currentEvent = {
+const createEmptyEvent = () => ({
     id: null,
     title: "",
     start: new Date().toISOString().split('T')[0],
@@ -28,7 +29,15 @@ let currentEvent = {
     extendedProps: {
         workoutExercises: [{exerciseName: "", sets: 0, reps: 0, weight: ""}]
     }
-}
+})
+
+const currentEvent = ref(createEmptyEvent())
+
+watch(showWorkout, (newValue, oldValue) => {
+    if(newValue === false && oldValue === true) {
+        currentEvent.value = createEmptyEvent();
+    }
+})
 
 const handleDateClick = (info) => {
     console.log(`Clicked on a date ${info.dateStr}`)
@@ -37,21 +46,8 @@ const handleDateClick = (info) => {
 const handleEventClick = (info) => {
     console.log(`Clicked on event with id: ${info.event.id}`);
     console.log(`Event details: ${JSON.stringify(info.event)}`);
-    currentEvent = info.event;
+    currentEvent.value = info.event;
     showWorkout.value = true;
-}
-
-const closeModal = (value) => {
-    showWorkout.value = value;
-    currentEvent = {
-        id: null,
-        title: "",
-        start: new Date().toISOString().split('T')[0],
-        allDay: true,
-        extendedProps: {
-            workoutExercises: [{exerciseName: "", sets: 0, reps: 0, weight: ""}]
-        }
-    }
 }
 
 const getEvents = async () => {
@@ -72,6 +68,24 @@ const getEvents = async () => {
     }
 }
 
+const handleDelete = async (id) => {
+    const response = await fetch(`http://localhost:3000/api/events/${id}`, {
+        method: "DELETE"
+    });
+
+    if(!response.ok) {
+        notificationTitle.value = "Failed to delete workout"
+        notificationMessage.value = "Could not delete workout at this time."
+        showNotification.value = true;
+    } else {
+        notificationTitle.value = "Deleted workout";
+        notificationMessage.value = "Successfully deleted workout event.";
+        showWorkout.value = false;
+        showNotification.value = true;
+        await getEvents();
+    }
+}
+
 const handleSave = async (data) => {
     console.log("Inside handleSave");
     const eventData = {
@@ -86,10 +100,6 @@ const handleSave = async (data) => {
 
     console.log("eventData:", eventData);
     console.log("exercises:", eventData.extendedProps.workoutExercises)
-
-    // workoutEvents.value.push(eventData);
-    // console.log(workoutEvents.value);
-    // showWorkout.value = false;
 
     try {
         const response = await fetch("http://localhost:3000/api/events", {
@@ -106,23 +116,22 @@ const handleSave = async (data) => {
             notificationTitle.value = "Failed to submit event."
             notificationMessage.value = data.message;
             showNotification.value = true;
-            console.log(`showNotification: ${showNotification.value}`);
             return;
-            // throw new Error(`Response status: ${response.status}`)
         }
         
         const returnedData = await response.json();
 
         console.log(`returned data: ${returnedData}`);
 
-        if(returnedData.success) {
-            alert("Saved event!");
-        }
+        // if(returnedData.success) {
+        //     alert("Saved event!");
+        // }
 
         const retrievedEvent = await fetch(`http://localhost:3000/api/events/${eventData.id}`);
 
         if(!retrievedEvent.ok) {
             throw new Error(`Failed to get event after creation: ${retrievedEvent.status}`);
+
         }
 
         const retrievedEventData = await retrievedEvent.json();
@@ -130,11 +139,15 @@ const handleSave = async (data) => {
         console.log(`retrievedEventData: ${JSON.stringify(retrievedEventData)}`);
         workoutEvents.value.push(retrievedEventData.data);
         showWorkout.value = false;
+        notificationTitle.value = "Save successful";
+        notificationMessage.value = "Successfully created and retrieved event.";
+        showNotification.value = true;
     } catch (error) {
         alert("Unable to save event at this time.");
         console.error(error);
     }
 } 
+
 const calendarOptions = reactive({
     plugins: [themePlugin, dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin],
     buttons: {
@@ -167,8 +180,9 @@ onMounted(() => {
     <WorkoutView v-if="showWorkout" 
     :show-modal="showWorkout"
     :workout-details="currentEvent"
+    v-model="showWorkout"
     @save-workout="handleSave" 
-    @close-modal="closeModal" />
+    @delete-workout="handleDelete" />
     <NotificationModal :title="notificationTitle" :message="notificationMessage" v-model="showNotification" />
     <FullCalendar ref="calendar" :options="calendarOptions"/>
 </template>
