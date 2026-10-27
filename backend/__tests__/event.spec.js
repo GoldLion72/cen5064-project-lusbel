@@ -153,5 +153,37 @@ describe('POST /api/events', () => {
 
         expect(response.status).toBe(400);
     })
+
+    it('returns 400 when event has date already in use', async () => {
+        const dummyEventOne = {
+            id: crypto.randomUUID(),
+            title: "Workout - 2026-10-26",
+            start: "2026-10-26",
+            allDay: true,
+            extendedProps: {
+                workoutExercises: [{exerciseName: "benchPress", sets: 5, reps: 5, weight: 205}]
+            }
+        };
+
+        const dummyEventTwo = {
+            id: crypto.randomUUID(),
+            title: "Workout - 2026-10-26",
+            start: "2026-10-26",
+            allDay: true,
+            extendedProps: {
+                workoutExercises: [{exerciseName: "shoulderPress", sets: 5, reps: 10, weight: 205}]
+            }
+        };
+
+        const firstResponse = await request(app).post('/api/events').send(dummyEventOne);
+
+        expect(firstResponse.status).toBe(200);
+
+        const secondResponse = await request(app).post('/api/events').send(dummyEventTwo);
+
+        expect(secondResponse.status).toBe(400);
+        expect(secondResponse.body.success).toBe(false);
+        expect(secondResponse.body.message).toBe("There is already an event on 2026-10-26.");
+    })
 });
 
