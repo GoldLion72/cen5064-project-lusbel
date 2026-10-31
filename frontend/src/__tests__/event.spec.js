@@ -83,33 +83,33 @@ describe('event creation', () => {
         expect(workoutWrapper.vm.workoutDate).toBe(today);
         expect(workoutWrapper.vm.exercises).toEqual(exerciseList);
 
-        await workoutWrapper.get('.button.is-primary').trigger('click');
+        await workoutWrapper.get('#saveBtn').trigger('click');
         await flushPromises();
         expect(wrapper.vm.workoutEvents).toHaveLength(initialEventsLength + 1);
     });
 
     it('should display events that are stored on mount', async () => {
-        const wrapper = mount(CalendarView)
-
         const dummyData = 
-                [
-                    {
-                        id:"3e2bc59f-24db-4229-a658-3a19eba524da",
-                        title:"Workout - 2026-10-06",
-                        start:"2026-10-06",
-                        allDay:true,
-                        extendedProps:{
-                            workoutExercises:[{"exerciseName":"benchPress","sets":5,"reps":4,"weight":205}]
-                        },
-                        id:"e456bec6-0da5-4024-bfb0-1a2bcebf9ec6",
-                        title:"Workout - 2026-10-05",
-                        start:"2026-10-05",
-                        allDay: true,
-                        extendedProps:{
-                            workoutExercises:[{"exerciseName":"benchPress","sets":5,"reps":4,"weight":205}]
-                        },
+            [
+                {
+                    id:"3e2bc59f-24db-4229-a658-3a19eba524da",
+                    title:"Workout - 2026-10-06",
+                    start:"2026-10-06",
+                    allDay:true,
+                    extendedProps:{
+                        workoutExercises:[{"exerciseName":"benchPress","sets":5,"reps":4,"weight":205}]
                     }
-                ];
+                },
+                {
+                    id:"e456bec6-0da5-4024-bfb0-1a2bcebf9ec6",
+                    title:"Workout - 2026-10-05",
+                    start:"2026-10-05",
+                    allDay: true,
+                    extendedProps:{
+                        workoutExercises:[{"exerciseName":"benchPress","sets":5,"reps":4,"weight":205}]
+                    },
+                }
+            ];
 
         globalThis.fetch = vi.fn().mockResolvedValue({
             status: 200,
@@ -121,7 +121,8 @@ describe('event creation', () => {
             })
         });
 
-        await wrapper.vm.getEvents();
+        const wrapper = mount(CalendarView)
+        await flushPromises();
 
         expect(wrapper.vm.workoutEvents).toEqual(dummyData);
     });
@@ -275,7 +276,7 @@ describe('event deletion', () => {
 
         expect(wrapper.vm.workoutEvents).toEqual(dummyGetData);
 
-        await wrapper.vm.handleDelete(eventIDToRemove);
+        await wrapper.vm.deleteEvent(eventIDToRemove);
         await flushPromises();
 
         expect(wrapper.vm.workoutEvents).toEqual(expectedDataAfterDelete);
@@ -347,6 +348,6 @@ describe('event deletion', () => {
         await flushPromises();
 
         expect(wrapper.vm.showNotification).toBe(true);
-        expect(wrapper.vm.notificationTitle).toBe('Failed to delete workout');
+        expect(wrapper.vm.notification.notificationTitle).toBe('Failed to delete workout');
     });
 })
