@@ -27,23 +27,6 @@ afterEach(() => {
 })
 
 describe('event creation', () => {
-    // beforeEach(() => {
-    //     vi.stubGlobal('fetch', vi.fn(async (url, options = {}) => ({
-    //         ok: true,
-    //         status: 200,
-    //         json: async () => ({
-    //             success: true,
-    //             message: "Retrived event.",
-    //             data: options.method === 'POST' ? JSON.parse(options.body) : []
-    //         })
-    //     })));
-    // })
-
-    // afterEach(() => {
-    //     vi.unstubAllGlobals();
-    //     vi.resetAllMocks();
-    // })
-
     it('should have event modal display', async () => {
         const wrapper = mount(CalendarView);
 
@@ -151,6 +134,67 @@ describe('event creation', () => {
 
         expect(wrapper.vm.showNotification).toBe(true);
     })
+
+    it('should display an error when failing to retrieve event', async () => {
+        const dummyData = {
+            date: "2026-11-01",
+            exercises: [{
+                exerciseName: "benchPress",
+                sets: 5,
+                reps: 5,
+                weight: 210
+            }]                
+        };
+
+        const dummyGetData = [{
+            id: crypto.randomUUID(),
+            title: "Workout - 2026-11-01",
+            start: "2026-11-01",
+            allDay: true,
+            extendedProps: {
+                workoutExercises: [{
+                    exerciseName: "benchPress",
+                    sets: 5,
+                    reps: 5,
+                    weight: 210
+                }]
+            }
+        }];
+
+        globalThis.fetch = vi.fn((url, options = {}) => {
+            if(url === "http://localhost:3000/api/events" && (!options.method || options.method === "GET")) {
+                return {
+                    status: 200,
+                    ok: true,
+                    json: () => ({
+                        success: true,
+                        message: "Events were retrieved.",
+                        data: dummyGetData
+                    })
+                }
+            } else if(url === "http://localhost:3000/api/events" && options.method === "POST") {
+                return {
+                    status: 200,
+                    ok: true
+                }
+            } else if(/^http:\/\/localhost:3000\/api\/events\/[^/]+$/.test(url) && (!options.method || options.method === "GET")) {
+                return {
+                    status: 500,
+                    ok: false
+                }
+            }
+        })
+
+        const wrapper = mount(CalendarView);
+        await flushPromises();
+
+        await wrapper.vm.handleSave(dummyData);
+        await flushPromises();
+
+        expect(wrapper.vm.showNotification).toBe(true);
+        expect(wrapper.vm.notification.notificationTitle).toBe("Failed to retrieve event.");
+        expect(wrapper.vm.notification.notificationMessage).toBe("Submission succeeded, but event could not be retrieved at this time.");      
+    });
 });
 
 describe('event deletion', () => {
@@ -174,7 +218,7 @@ describe('event deletion', () => {
                 allDay: true,
                 extendedProps: {
                     workoutExercises: [{
-                        exerciseName: "brenchPress",
+                        exerciseName: "renchPress",
                         sets: 5,
                         reps: 5,
                         weight: 210

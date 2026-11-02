@@ -53,6 +53,10 @@ export function useEvents(showWorkout, showNotification, setNotification) {
         try {
             const response = await fetch(`http://localhost:3000/api/events/${id}`);
 
+            if(!response.ok) {
+                throw new Error("Failed to get event.");
+            }
+
             const result = await response.json();
 
             workoutEvents.value.push(result.data);
@@ -95,15 +99,17 @@ export function useEvents(showWorkout, showNotification, setNotification) {
                 return returnData;
             }
 
-            // const result = await response.json();
-
             await retrieveEvent(eventData.id);
 
             returnData.ok = true;
             returnData.title = "Save successful";
             returnData.message = "Successfully created and retrieved event.";
         } catch (error) {
-            throw error;
+            returnData.ok = false;
+            returnData.title = "Failed to retrieve event."
+            returnData.message = error.message === "Failed to get event." 
+            ? "Submission succeeded, but event could not be retrieved at this time." 
+            : "Something went wrong when attempting to submit and retrieve event.";
         }
 
         return returnData;
