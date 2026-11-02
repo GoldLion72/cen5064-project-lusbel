@@ -107,6 +107,15 @@ function getEvent(eventID) {
     return eventData;
 }
 
+function isDateAlreadyUsed(date) {
+    console.log(`Date: ${date}`);
+    const eventDateSQL = db.prepare("SELECT * FROM EVENT WHERE START_DATE = ?;");
+    
+    const eventDateResults = eventDateSQL.all(date);
+
+    return eventDateResults.length > 0;
+}
+
 function deleteEvent(id) {
     console.log("Inside delete event. Working with id:", id);
     try {
@@ -127,4 +136,4 @@ function deleteEvent(id) {
     }
 }
 
-export {retrieveEvents, insertEvent, getEvent, deleteEvent};
+export {retrieveEvents, insertEvent, getEvent, deleteEvent, isDateAlreadyUsed};

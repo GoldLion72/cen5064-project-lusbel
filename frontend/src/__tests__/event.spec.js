@@ -194,7 +194,31 @@ describe('event creation', () => {
         expect(wrapper.vm.showNotification).toBe(true);
         expect(wrapper.vm.notification.notificationTitle).toBe("Failed to retrieve event.");
         expect(wrapper.vm.notification.notificationMessage).toBe("Submission succeeded, but event could not be retrieved at this time.");      
+        expect(wrapper.vm.notificationMessage).toBe("There is already an event on 2026-10-26.");
     });
+  
+  it('should display error when event contains date already in use', async () => {
+        const wrapper = mount(CalendarView);
+
+        const dummyData = {
+            id: crypto.randomUUID(),
+            title:"Workout - 2026-10-06",
+            start:"2026-10-26",
+            allDay:true,
+            extendedProps:{
+                workoutExercises:[{"exerciseName":"benchPress","sets":5,"reps":4,"weight":205}]
+            }
+        };
+
+        globalThis.fetch = vi.fn().mockResolvedValue({
+            status: 400,
+            ok: false,
+            json: () => ({
+                success: false,
+                message: "There is already an event on 2026-10-26.",
+                data: {}
+            })
+        });
 });
 
 describe('event deletion', () => {

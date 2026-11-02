@@ -1,4 +1,4 @@
-import {retrieveEvents, insertEvent, getEvent, deleteEvent} from '../models/eventsModel.js';
+import {retrieveEvents, insertEvent, getEvent, deleteEvent, isDateAlreadyUsed} from '../models/eventsModel.js';
 import { hasAnExercise } from '../domain/workout.js';
 
 function getAllEvents(req, res){
@@ -13,6 +13,11 @@ function getAllEvents(req, res){
 function createEvent (req, res) {
     console.log(`Incoming request body: ${JSON.stringify(req.body)}`);
     const event = req.body;
+    const eventDate = event.start;
+    if(isDateAlreadyUsed(eventDate)) {
+        res.status(400).json({success: false, message: `There is already an event on ${eventDate}.`, data: {}});
+        return;
+    }
     if(!hasAnExercise(event)) {
         res.status(400).json({success: false, message: "Event is missing exercises, or exercise info.", data: {}});
         return;
