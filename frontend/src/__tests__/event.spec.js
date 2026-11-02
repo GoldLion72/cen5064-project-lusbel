@@ -150,6 +150,36 @@ describe('event creation', () => {
 
         expect(wrapper.vm.showNotification).toBe(true);
     })
+
+    it('should display error when event contains date already in use', async () => {
+        const wrapper = mount(CalendarView);
+
+        const dummyData = {
+            id: crypto.randomUUID(),
+            title:"Workout - 2026-10-06",
+            start:"2026-10-26",
+            allDay:true,
+            extendedProps:{
+                workoutExercises:[{"exerciseName":"benchPress","sets":5,"reps":4,"weight":205}]
+            }
+        };
+
+        globalThis.fetch = vi.fn().mockResolvedValue({
+            status: 400,
+            ok: false,
+            json: () => ({
+                success: false,
+                message: "There is already an event on 2026-10-26.",
+                data: {}
+            })
+        });
+
+        await wrapper.vm.handleSave(dummyData);
+        await flushPromises();
+
+        expect(wrapper.vm.showNotification).toBe(true);
+        expect(wrapper.vm.notificationMessage).toBe("There is already an event on 2026-10-26.");
+    });
 });
 
 describe('event deletion', () => {
