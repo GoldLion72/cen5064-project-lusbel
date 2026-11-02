@@ -193,11 +193,10 @@ describe('event creation', () => {
 
         expect(wrapper.vm.showNotification).toBe(true);
         expect(wrapper.vm.notification.notificationTitle).toBe("Failed to retrieve event.");
-        expect(wrapper.vm.notification.notificationMessage).toBe("Submission succeeded, but event could not be retrieved at this time.");      
-        expect(wrapper.vm.notificationMessage).toBe("There is already an event on 2026-10-26.");
+        expect(wrapper.vm.notification.notificationMessage).toBe("Submission succeeded, but event could not be retrieved at this time.");
     });
-  
-  it('should display error when event contains date already in use', async () => {
+
+    it('should display error when event contains date already in use', async () => {
         const wrapper = mount(CalendarView);
 
         const dummyData = {
@@ -219,6 +218,13 @@ describe('event creation', () => {
                 data: {}
             })
         });
+
+        await wrapper.vm.handleSave(dummyData);
+        await flushPromises();
+
+        expect(wrapper.vm.showNotification).toBe(true);
+        expect(wrapper.vm.notification.notificationMessage).toBe("There is already an event on 2026-10-26.");
+    });
 });
 
 describe('event deletion', () => {
