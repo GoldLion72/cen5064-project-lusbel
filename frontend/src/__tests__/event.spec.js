@@ -27,23 +27,6 @@ afterEach(() => {
 })
 
 describe('event creation', () => {
-    // beforeEach(() => {
-    //     vi.stubGlobal('fetch', vi.fn(async (url, options = {}) => ({
-    //         ok: true,
-    //         status: 200,
-    //         json: async () => ({
-    //             success: true,
-    //             message: "Retrived event.",
-    //             data: options.method === 'POST' ? JSON.parse(options.body) : []
-    //         })
-    //     })));
-    // })
-
-    // afterEach(() => {
-    //     vi.unstubAllGlobals();
-    //     vi.resetAllMocks();
-    // })
-
     it('should have event modal display', async () => {
         const wrapper = mount(CalendarView);
 
@@ -83,33 +66,33 @@ describe('event creation', () => {
         expect(workoutWrapper.vm.workoutDate).toBe(today);
         expect(workoutWrapper.vm.exercises).toEqual(exerciseList);
 
-        await workoutWrapper.get('.button.is-primary').trigger('click');
+        await workoutWrapper.get('#saveBtn').trigger('click');
         await flushPromises();
         expect(wrapper.vm.workoutEvents).toHaveLength(initialEventsLength + 1);
     });
 
     it('should display events that are stored on mount', async () => {
-        const wrapper = mount(CalendarView)
-
         const dummyData = 
-                [
-                    {
-                        id:"3e2bc59f-24db-4229-a658-3a19eba524da",
-                        title:"Workout - 2026-10-06",
-                        start:"2026-10-06",
-                        allDay:true,
-                        extendedProps:{
-                            workoutExercises:[{"exerciseName":"benchPress","sets":5,"reps":4,"weight":205}]
-                        },
-                        id:"e456bec6-0da5-4024-bfb0-1a2bcebf9ec6",
-                        title:"Workout - 2026-10-05",
-                        start:"2026-10-05",
-                        allDay: true,
-                        extendedProps:{
-                            workoutExercises:[{"exerciseName":"benchPress","sets":5,"reps":4,"weight":205}]
-                        },
+            [
+                {
+                    id:"3e2bc59f-24db-4229-a658-3a19eba524da",
+                    title:"Workout - 2026-10-06",
+                    start:"2026-10-06",
+                    allDay:true,
+                    extendedProps:{
+                        workoutExercises:[{"exerciseName":"benchPress","sets":5,"reps":4,"weight":205}]
                     }
-                ];
+                },
+                {
+                    id:"e456bec6-0da5-4024-bfb0-1a2bcebf9ec6",
+                    title:"Workout - 2026-10-05",
+                    start:"2026-10-05",
+                    allDay: true,
+                    extendedProps:{
+                        workoutExercises:[{"exerciseName":"benchPress","sets":5,"reps":4,"weight":205}]
+                    },
+                }
+            ];
 
         globalThis.fetch = vi.fn().mockResolvedValue({
             status: 200,
@@ -121,7 +104,8 @@ describe('event creation', () => {
             })
         });
 
-        await wrapper.vm.getEvents();
+        const wrapper = mount(CalendarView)
+        await flushPromises();
 
         expect(wrapper.vm.workoutEvents).toEqual(dummyData);
     });
@@ -151,6 +135,67 @@ describe('event creation', () => {
         expect(wrapper.vm.showNotification).toBe(true);
     })
 
+    it('should display an error when failing to retrieve event', async () => {
+        const dummyData = {
+            date: "2026-11-01",
+            exercises: [{
+                exerciseName: "benchPress",
+                sets: 5,
+                reps: 5,
+                weight: 210
+            }]                
+        };
+
+        const dummyGetData = [{
+            id: crypto.randomUUID(),
+            title: "Workout - 2026-11-01",
+            start: "2026-11-01",
+            allDay: true,
+            extendedProps: {
+                workoutExercises: [{
+                    exerciseName: "benchPress",
+                    sets: 5,
+                    reps: 5,
+                    weight: 210
+                }]
+            }
+        }];
+
+        globalThis.fetch = vi.fn((url, options = {}) => {
+            if(url === "http://localhost:3000/api/events" && (!options.method || options.method === "GET")) {
+                return {
+                    status: 200,
+                    ok: true,
+                    json: () => ({
+                        success: true,
+                        message: "Events were retrieved.",
+                        data: dummyGetData
+                    })
+                }
+            } else if(url === "http://localhost:3000/api/events" && options.method === "POST") {
+                return {
+                    status: 200,
+                    ok: true
+                }
+            } else if(/^http:\/\/localhost:3000\/api\/events\/[^/]+$/.test(url) && (!options.method || options.method === "GET")) {
+                return {
+                    status: 500,
+                    ok: false
+                }
+            }
+        })
+
+        const wrapper = mount(CalendarView);
+        await flushPromises();
+
+        await wrapper.vm.handleSave(dummyData);
+        await flushPromises();
+
+        expect(wrapper.vm.showNotification).toBe(true);
+        expect(wrapper.vm.notification.notificationTitle).toBe("Failed to retrieve event.");
+        expect(wrapper.vm.notification.notificationMessage).toBe("Submission succeeded, but event could not be retrieved at this time.");
+    });
+
     it('should display error when event contains date already in use', async () => {
         const wrapper = mount(CalendarView);
 
@@ -178,7 +223,7 @@ describe('event creation', () => {
         await flushPromises();
 
         expect(wrapper.vm.showNotification).toBe(true);
-        expect(wrapper.vm.notificationMessage).toBe("There is already an event on 2026-10-26.");
+        expect(wrapper.vm.notification.notificationMessage).toBe("There is already an event on 2026-10-26.");
     });
 });
 
@@ -203,7 +248,7 @@ describe('event deletion', () => {
                 allDay: true,
                 extendedProps: {
                     workoutExercises: [{
-                        exerciseName: "brenchPress",
+                        exerciseName: "renchPress",
                         sets: 5,
                         reps: 5,
                         weight: 210
@@ -305,7 +350,7 @@ describe('event deletion', () => {
 
         expect(wrapper.vm.workoutEvents).toEqual(dummyGetData);
 
-        await wrapper.vm.handleDelete(eventIDToRemove);
+        await wrapper.vm.deleteEvent(eventIDToRemove);
         await flushPromises();
 
         expect(wrapper.vm.workoutEvents).toEqual(expectedDataAfterDelete);
@@ -377,6 +422,6 @@ describe('event deletion', () => {
         await flushPromises();
 
         expect(wrapper.vm.showNotification).toBe(true);
-        expect(wrapper.vm.notificationTitle).toBe('Failed to delete workout');
+        expect(wrapper.vm.notification.notificationTitle).toBe('Failed to delete workout');
     });
 })
