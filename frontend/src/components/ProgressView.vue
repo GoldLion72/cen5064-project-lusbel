@@ -1,5 +1,17 @@
 <script setup>
+import { useProgress } from '../composables/useProgress';
 const props = defineProps(['exerciseOptions', 'metricOptions']);
+
+const {
+    startDate,
+    endDate,
+    exercise,
+    metric,
+    workoutEvents,
+    searchEvents,
+    clearCriteria
+} = useProgress();
+
 </script>
 
 <template>
