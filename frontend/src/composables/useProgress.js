@@ -8,13 +8,14 @@ export function useProgress() {
     const workoutEvents = ref([]);
 
     const searchEvents = () => {
-        //do search here
+        //make fetch call here and update workoutEvents
     }
 
     const clearCriteria = () => {
         startDate.value = null;
         endDate.value = null;
-        
+        exercise.value = "";
+        metric.value = "";
     }
 
     return {
