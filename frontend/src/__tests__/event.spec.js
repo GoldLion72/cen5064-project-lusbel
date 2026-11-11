@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { flushPromises, mount } from '@vue/test-utils'
 import CalendarView from '../components/CalendarView.vue'
 import WorkoutView from '../components/WorkoutView.vue'
+import { workoutOptions } from '../config/workoutOptions.js';
 
 
 
@@ -123,7 +124,6 @@ describe('event creation', () => {
 
         const wrapper = mount(CalendarView);
 
-        // console.log("workoutEvents:", wrapper.vm.workoutEvents);
         await wrapper.get('button[aria-label="Add Event"]').trigger('click');
 
         const workoutModal = wrapper.getComponent({name: 'WorkoutView'});
@@ -224,6 +224,30 @@ describe('event creation', () => {
 
         expect(wrapper.vm.showNotification).toBe(true);
         expect(wrapper.vm.notification.notificationMessage).toBe("There is already an event on 2026-10-26.");
+    });
+
+    it('should use the exercise-options list', async () => {
+        const wrapper = mount(CalendarView);
+
+        await wrapper.get('button[aria-label="Add Event"]').trigger('click');
+
+        const workoutModal = wrapper.findComponent(WorkoutView);
+
+        const select = workoutModal.find('select').element;
+
+        const selectOptions = Array.from(select.options);
+
+        const options = selectOptions.map((option) => option.value);
+
+        const workoutOptionsValues = workoutOptions.exerciseOptions.map(option => option.value);
+        
+        expect(options).toEqual(workoutOptionsValues);
+    });
+
+    it('should prevent exerciseOptions from being modified', () => {
+        expect(() => workoutOptions.exerciseOptions = []).toThrow();
+        expect(() => workoutOptions.exerciseOptions.push({value: 'hammerCurls', label: 'Hammer Curls', category: 'stength'})).toThrow();
+        expect(() => workoutOptions.exerciseOptions[0].value = 'abs').toThrow();
     });
 });
 
