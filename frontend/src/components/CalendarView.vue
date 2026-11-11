@@ -15,6 +15,7 @@ import NotificationModal from './NotificationModal.vue';
 import { useEvents } from '../composables/useEvents.js';
 import { useWorkoutModal } from '../composables/useWorkoutModal.js';
 import { useNotification } from '../composables/useNotification.js';
+import { workoutOptions } from '../config/workoutOptions.js';
 
 const {currentEvent, showWorkout, setCurrentEvent} = useWorkoutModal();
 const {notification, showNotification, setNotification} = useNotification();
@@ -67,6 +68,7 @@ const calendarOptions = reactive({
     <WorkoutView v-if="showWorkout" 
     :show-modal="showWorkout"
     :workout-details="currentEvent"
+    :exercise-options="workoutOptions.exerciseOptions"
     v-model="showWorkout"
     @save-workout="handleSave" 
     @delete-workout="handleDelete" />

@@ -1,22 +1,12 @@
 <script setup>
 import { onMounted, ref } from 'vue'
 
-const props = defineProps(["showModal", "workoutDetails"])
+const props = defineProps(["showModal", "workoutDetails", "exerciseOptions"])
 const emit = defineEmits(['saveWorkout', 'deleteWorkout'])
 const showWorkout = defineModel();
 
 const id = ref(props.workoutDetails.id)
 const workoutDate = ref(new Date(props.workoutDetails.start).toISOString().split('T')[0])
-
-const exerciseOptions = ref([
-    {value: "benchPress", label: "Bench Press", category: "strength"},
-    {value: "shoulderPress", label: "Shoulder Press", category: "strength"},
-    {value: "latPulldown", label: "Lateral Pulldown", category: "strength"},
-    {value: "bicepCurls", label: "Bicep Curls", category: "strength"},
-    {value: "tricepExtension", label: "Triceps Extension"},
-    {value: "treadmill", label: "Treadmill", category: "cardio"}
-])
-
 
 const exercises = ref(props.workoutDetails.extendedProps.workoutExercises)
 

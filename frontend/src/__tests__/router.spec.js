@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import { createMemoryHistory, createWebHistory } from 'vue-router'
+import { workoutOptions } from '../config/workoutOptions.js'
 
 // FullCalendar does not render in jsdom, so replace the calendar with a simple stub
 vi.mock('../components/CalendarView.vue', () => ({
@@ -55,6 +56,13 @@ describe('routing', () => {
     const { wrapper } = await mountAt('/progress')
     expect(wrapper.text()).toContain('Progress tracking')
     expect(wrapper.find('[data-test="calendar-view"]').exists()).toBe(false)
+  })
+
+  it('passes props to ProgressView at /progress', async () => {
+    const { wrapper } = await mountAt('/progress');
+    const props = wrapper.findComponent({name: 'ProgressView'}).props();
+    expect(props.exerciseOptions).toEqual(workoutOptions.exerciseOptions);
+    expect(props.metricOptions).toEqual(workoutOptions.metricOptions);
   })
 
   it('loads the correct view when a tab is clicked', async () => {
@@ -114,5 +122,11 @@ describe('no page reload on tab switch', () => {
     expect(pushState).toHaveBeenCalled()
     expect(window.location.pathname).toBe('/progress')
     pushState.mockRestore()
+  })
+
+  describe('ProgressView Route', () => {
+    it('should pass the exerciseOptions and metricOptions props', async () => {
+
+    })
   })
 })

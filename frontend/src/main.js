@@ -4,11 +4,13 @@ import './style.css'
 import App from './App.vue'
 import CalendarView from './components/CalendarView.vue'
 import ProgressView from './components/ProgressView.vue'
+import { workoutOptions } from './config/workoutOptions.js'
+const {exerciseOptions, metricOptions} = workoutOptions
 
 export const routes = [
   { path: '/', redirect: '/calendar' },
   { path: '/calendar', name: 'calendar', component: CalendarView },
-  { path: '/progress', name: 'progress', component: ProgressView },
+  { path: '/progress', name: 'progress', component: ProgressView, props: {exerciseOptions, metricOptions} },
   { path: '/:pathMatch(.*)*', redirect: '/calendar' }
 ]
 
