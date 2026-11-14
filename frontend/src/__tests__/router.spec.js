@@ -54,7 +54,7 @@ describe('routing', () => {
 
   it('loads ProgressView at /progress', async () => {
     const { wrapper } = await mountAt('/progress')
-    expect(wrapper.text()).toContain('Progress tracking')
+    expect(wrapper.text()).toContain('Criteria')
     expect(wrapper.find('[data-test="calendar-view"]').exists()).toBe(false)
   })
 
@@ -71,7 +71,7 @@ describe('routing', () => {
     await tab(wrapper, 'Progress').trigger('click')
     await flushPromises()
     expect(router.currentRoute.value.path).toBe('/progress')
-    expect(wrapper.text()).toContain('Progress tracking')
+    expect(wrapper.text()).toContain('Criteria')
     expect(wrapper.find('[data-test="calendar-view"]').exists()).toBe(false)
 
     await tab(wrapper, 'Calendar').trigger('click')
