@@ -1,11 +1,11 @@
 const workoutOptions = {
     exerciseOptions: [
-        {value: "benchPress", label: "Bench Press", category: "strength"},
-        {value: "shoulderPress", label: "Shoulder Press", category: "strength"},
-        {value: "latPulldown", label: "Lateral Pulldown", category: "strength"},
-        {value: "bicepCurls", label: "Bicep Curls", category: "strength"},
-        {value: "tricepExtension", label: "Triceps Extension"},
-        {value: "treadmill", label: "Treadmill", category: "cardio"}
+        {value: "", label: "Select"},
+        {value: "benchPress", label: "Bench Press"},
+        {value: "shoulderPress", label: "Shoulder Press"},
+        {value: "latPulldown", label: "Lateral Pulldown"},
+        {value: "bicepCurls", label: "Bicep Curls"},
+        {value: "tricepExtension", label: "Triceps Extension"}
     ],
     metricOptions: [
         {value: "", label: "Select"},

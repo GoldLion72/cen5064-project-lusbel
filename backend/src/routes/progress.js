@@ -1,6 +1,6 @@
 import express from 'express';
 const router = express.Router();
-import { findEvents } from '../controllers/progressController';
+import { findEvents } from '../controllers/progressController.js';
 
 router.get('/progress', findEvents);
 

@@ -1,4 +1,5 @@
 <script setup>
+import ProgressChart from './ProgressChart.vue';
 import { useProgress } from '../composables/useProgress';
 const props = defineProps(['exerciseOptions', 'metricOptions']);
 
@@ -8,6 +9,7 @@ const {
     exercise,
     metric,
     workoutEvents,
+    madeProgress,
     searchEvents,
     clearCriteria
 } = useProgress();
@@ -42,7 +44,7 @@ const {
                         <label class="label">Exercise</label>
                         <div class="select is-fullwidth">
                             <select id="exerciseSelect" v-model="exercise">
-                                <option value="">Select</option>
+                                <option v-for="option in exerciseOptions" :value="option.value">{{ option.label }}</option>
                             </select>
                         </div>
                     </div>
@@ -52,7 +54,7 @@ const {
                         <label class="label">Metric</label>
                         <div class="select is-fullwidth">
                             <select id="metricSelect" v-model="metric">
-                                <option value="">Select</option>
+                                <option v-for="option in metricOptions" :value="option.value">{{ option.label }}</option>
                             </select>
                         </div>
                     </div>
@@ -64,4 +66,8 @@ const {
             <a class="card-footer-item" @click="clearCriteria">Clear</a>
         </div>
     </div>
+    <div v-if="madeProgress !== null" class="box" :class="{'has-background-primary': madeProgress, 'has-background-danger': !madeProgress}">
+        {{ madeProgress ? "Progress made!" : "No progress made." }}
+    </div>
+    <ProgressChart v-if="workoutEvents.length > 0" :event-data="workoutEvents"></ProgressChart>
 </template>

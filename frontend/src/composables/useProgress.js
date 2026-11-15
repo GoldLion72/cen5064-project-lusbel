@@ -6,9 +6,20 @@ export function useProgress() {
     const exercise = ref("");
     const metric = ref("");
     const workoutEvents = ref([]);
+    const madeProgress = ref(null);
 
-    const searchEvents = () => {
-        //make fetch call here and update workoutEvents
+    const searchEvents = async () => {
+        try {
+            const response = await fetch(`http://localhost:3000/api/progress?startDate=${startDate.value}&endDate=${endDate.value}&exercise=${exercise.value}&metric=${metric.value}`);
+            const data = await response.json();
+
+            if(data.success) {
+                workoutEvents.value = data.data.events;
+                madeProgress.value = data.data.progressMade;
+            }
+        } catch (error) {
+            throw error;
+        }
     }
 
     const clearCriteria = () => {
@@ -24,6 +35,7 @@ export function useProgress() {
         exercise,
         metric,
         workoutEvents,
+        madeProgress,
         searchEvents,
         clearCriteria
     }
