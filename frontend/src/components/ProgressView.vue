@@ -1,6 +1,9 @@
 <script setup>
 import ProgressChart from './ProgressChart.vue';
+import NotificationModal from './NotificationModal.vue';
 import { useProgress } from '../composables/useProgress';
+import { useNotification } from '../composables/useNotification.js';
+import { watch } from 'vue';
 const props = defineProps(['exerciseOptions', 'metricOptions']);
 
 const {
@@ -10,13 +13,32 @@ const {
     metric,
     workoutEvents,
     madeProgress,
+    errorFound,
+    error,
     searchEvents,
     clearCriteria
 } = useProgress();
 
+const {
+    showNotification,
+    notification,
+    setNotification
+} = useNotification()
+
+watch(errorFound, (errorValue) => {
+    if(errorValue) {
+        setNotification({
+            notificationTitle: error.title,
+            notificationMessage: error.message
+        });
+        showNotification.value = true;
+    }
+});
+
 </script>
 
 <template>
+    <NotificationModal v-if="showNotification" v-model="showNotification" :title="notification.notificationTitle" :message="notification.notificationMessage"></NotificationModal>
     <div class="card">
         <div class="card-header">
             <p class="card-header-title">Criteria</p>
@@ -62,11 +84,11 @@ const {
             </div>
         </div>
         <div class="card-footer">
-            <a class="card-footer-item" @click="searchEvents">Search</a>
-            <a class="card-footer-item" @click="clearCriteria">Clear</a>
+            <a id="searchBtn" class="card-footer-item" @click="searchEvents">Search</a>
+            <a id="clearBtn" class="card-footer-item" @click="clearCriteria">Clear</a>
         </div>
     </div>
-    <div v-if="madeProgress !== null" class="box" :class="{'has-background-primary': madeProgress, 'has-background-danger': !madeProgress}">
+    <div id="progressMsg" v-if="madeProgress !== null" class="box" :class="{'has-background-primary': madeProgress, 'has-background-danger': !madeProgress}">
         {{ madeProgress ? "Progress made!" : "No progress made." }}
     </div>
     <ProgressChart v-if="workoutEvents.length > 0" :event-data="workoutEvents"></ProgressChart>
