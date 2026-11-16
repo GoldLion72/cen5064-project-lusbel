@@ -5,8 +5,9 @@ function SetsExercises(db, startDate, endDate, exercise) {
         SELECT A.START_DATE AS DATE, B.EXERCISE_SETS AS VALUE
         FROM EVENT A
         INNER JOIN EVENT_EXERCISES B ON A.EVENT_ID = B.EVENT_ID
-        WHERE EXERCISE_NAME = ?
-        AND START_DATE BETWEEN ? AND ?;
+        WHERE B.EXERCISE_NAME = ?
+        AND A.START_DATE BETWEEN ? AND ?
+        ORDER BY A.START_DATE ASC;
         `
 
         const preparedSQL = db.prepare(sql);

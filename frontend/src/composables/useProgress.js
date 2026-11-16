@@ -22,15 +22,26 @@ export function useProgress() {
 
     const error = reactive(createEmptyError());
 
+    let controller = null;
+
     const searchEvents = async () => {
         try {
+            if(controller) controller.abort();
+            controller = new AbortController();
+            const signal = controller.signal;
+
             workoutEvents.value = [];
             madeProgress.value = null;
             errorFound.value = false;
             Object.assign(error, createEmptyError());
 
-            const response = await fetch(`http://localhost:3000/api/progress?startDate=${startDate.value}&endDate=${endDate.value}&exercise=${exercise.value}&metric=${metric.value}`);
+            const response = await fetch(`http://localhost:3000/api/progress?startDate=${startDate.value}&endDate=${endDate.value}&exercise=${exercise.value}&metric=${metric.value}`, {signal});
             const data = await response.json();
+            
+            if(signal.aborted) {
+                return;
+            }
+
             if(response.ok) {
                 if(data.success) {
                     workoutEvents.value = data.data.events;
@@ -52,6 +63,10 @@ export function useProgress() {
                 });
             }
         } catch (err) {
+            if(err.name === "AbortError") {
+                return;
+            }
+            
             errorFound.value = true;
 
             Object.assign(error, {
@@ -64,6 +79,7 @@ export function useProgress() {
     }
 
     const clearCriteria = () => {
+        if(controller) controller.abort();
         startDate.value = null;
         endDate.value = null;
         exercise.value = "";

@@ -192,4 +192,91 @@ it('displays no events found message when no results found.', async () => {
     expect(notification.props('title')).toBe('Search failed');
     expect(notification.props('message')).toBe('No events found.');
     expect(notification.text()).toContain('No events found.');
-})
+});
+
+it('maintains empty results when clearCriteria is used after searching', async () => {
+    const dummyData = {
+        progressMade: true,
+        events: [{DATE: '2026-11-08', VALUE: 3}, {DATE: '2026-11-12', VALUE: 5}]
+    };
+
+    let resolveFetch;
+    globalThis.fetch = vi.fn(() => new Promise((resolve) => {
+        resolveFetch = resolve;
+    }));
+
+    const wrapper = mount(ProgressView);
+
+    wrapper.vm.startDate = '2026-11-08';
+    wrapper.vm.endDate = '2026-11-14';
+    wrapper.vm.exercise = 'benchPress';
+    wrapper.vm.metric = 'sets';
+
+    await wrapper.find('#searchBtn').trigger('click');
+    expect(globalThis.fetch).toHaveBeenCalledTimes(1);
+
+    await wrapper.find('#clearBtn').trigger('click');
+
+    resolveFetch({
+        status: 200,
+        ok: true,
+        json: async () => ({success: true, message: "Events found.", data: dummyData})
+    });
+    await flushPromises();
+
+    expect(wrapper.find('#progressMsg').exists()).toBe(false);
+    expect(wrapper.findComponent(ProgressChart).exists()).toBe(false);
+    expect(wrapper.findComponent({name: 'NotificationModal'}).exists()).toBe(false);
+});
+
+it('keeps the latest search results when an older search resolves last', async () => {
+    const olderData = {
+        progressMade: true,
+        events: [{DATE: '2026-11-08', VALUE: 3}, {DATE: '2026-11-12', VALUE: 5}]
+    };
+
+    const newerData = {
+        progressMade: false,
+        events: [{DATE: '2026-11-09', VALUE: 8}, {DATE: '2026-11-13', VALUE: 6}]
+    };
+
+    let resolveOlder;
+    let resolveNewer;
+    globalThis.fetch = vi.fn()
+        .mockImplementationOnce(() => new Promise((resolve) => { resolveOlder = resolve; }))
+        .mockImplementationOnce(() => new Promise((resolve) => { resolveNewer = resolve; }));
+
+    const wrapper = mount(ProgressView);
+
+    wrapper.vm.startDate = '2026-11-08';
+    wrapper.vm.endDate = '2026-11-14';
+    wrapper.vm.exercise = 'benchPress';
+    wrapper.vm.metric = 'sets';
+
+    await wrapper.find('#searchBtn').trigger('click');
+
+    wrapper.vm.exercise = 'shoulderPress';
+    await wrapper.find('#searchBtn').trigger('click');
+    expect(globalThis.fetch).toHaveBeenCalledTimes(2);
+
+    resolveNewer({
+        status: 200,
+        ok: true,
+        json: async () => ({success: true, message: "Events found.", data: newerData})
+    });
+    await flushPromises();
+
+    resolveOlder({
+        status: 200,
+        ok: true,
+        json: async () => ({success: true, message: "Events found.", data: olderData})
+    });
+    await flushPromises();
+
+    const progressMsg = wrapper.find('#progressMsg');
+    expect(progressMsg.classes()).toContain('has-background-danger');
+    expect(progressMsg.text()).toBe('No progress made.');
+    expect(wrapper.getComponent(ProgressChart).props('eventData')).toEqual(newerData.events);
+    expect(wrapper.findComponent({name: 'NotificationModal'}).exists()).toBe(false);
+});
+
