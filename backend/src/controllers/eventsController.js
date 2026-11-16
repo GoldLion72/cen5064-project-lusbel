@@ -11,7 +11,6 @@ function getAllEvents(req, res){
 }
 
 function createEvent (req, res) {
-    console.log(`Incoming request body: ${JSON.stringify(req.body)}`);
     const event = req.body;
     const eventDate = event.start;
     if(isDateAlreadyUsed(eventDate)) {
@@ -27,7 +26,6 @@ function createEvent (req, res) {
 }
 
 function getEventByID(req, res) {
-    console.log(`Request parameters: ${JSON.stringify(req.params)}`);
     const eventID = req.params.id;
     const eventData = getEvent(eventID);
 
@@ -35,8 +33,6 @@ function getEventByID(req, res) {
 }
 
 function deleteEventByID(req, res) {
-    console.log("Inside deleteEventByID.");
-    console.log(`Request parameters: ${JSON.stringify(req.params)}`);
     const eventID = req.params.id;
 
     deleteEvent(eventID);

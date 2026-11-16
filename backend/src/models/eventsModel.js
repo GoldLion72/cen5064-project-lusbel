@@ -44,18 +44,12 @@ function retrieveEvents() {
 }
 
 function insertEvent(event) {
-    console.log(`Inside insertEvent`);
-    console.log(event);
     const eventID = event.id;
     const allDay = event.allDay === true ? 1 : 0;
     const workoutExercises = event.extendedProps.workoutExercises;
-
-    console.log(`Workout exercises value: ${JSON.stringify(workoutExercises)}`);
     
     const eventStmt = db.prepare("INSERT INTO EVENT (EVENT_ID, TITLE, START_DATE, ALL_DAY) VALUES (?, ?, ?, ?)");
     const eventInfo = eventStmt.run(eventID, event.title, event.start, allDay);
-
-    console.log(`Made the following number of changes: ${eventInfo.changes}`);
 
     const exerciseStmt = db.prepare("INSERT INTO EVENT_EXERCISES (EVENT_ID, EXERCISE_NAME, EXERCISE_SETS, EXERCISE_REPS, EXERCISE_WEIGHT) VALUES (?, ?, ?, ?, ?)");
     
@@ -73,7 +67,6 @@ function insertEvent(event) {
 }
 
 function getEvent(eventID) {
-    console.log(`Event ID: ${eventID}`);
     const eventData = {
         id: "",
         title: "",
@@ -108,7 +101,6 @@ function getEvent(eventID) {
 }
 
 function isDateAlreadyUsed(date) {
-    console.log(`Date: ${date}`);
     const eventDateSQL = db.prepare("SELECT * FROM EVENT WHERE START_DATE = ?;");
     
     const eventDateResults = eventDateSQL.all(date);
@@ -117,15 +109,12 @@ function isDateAlreadyUsed(date) {
 }
 
 function deleteEvent(id) {
-    console.log("Inside delete event. Working with id:", id);
     try {
         const deleteExercisesStmt = db.prepare("DELETE FROM EVENT_EXERCISES WHERE EVENT_ID = ?;");
         const exercisesInfo = deleteExercisesStmt.run(id);
-        console.log(`Changes made to the exercises table: ${exercisesInfo.changes}`);
         
         const deleteEventStmt = db.prepare("DELETE FROM EVENT WHERE EVENT_ID = ?;");
         const eventInfo = deleteEventStmt.run(id);
-        console.log(`Changes made to the event table: ${eventInfo.changes}`);
         
         if(!wasDeleted(exercisesInfo.changes) || !wasDeleted(eventInfo.changes)) {
             throw new Error("Deletion failed.")
