@@ -74,4 +74,16 @@ describe('per-user data', () => {
         expect(response.status).toBe(200);
         expect(response.body.data.events.map(e => e.VALUE)).toEqual([100, 120]);
     });
+
+    it('rolls back the event when an exercise insert fails', async () => {
+        const event = makeEvent("2026-07-01");
+        event.extendedProps.workoutExercises.push({...event.extendedProps.workoutExercises[0]}); // duplicate name
+
+        const response = await alice.post('/api/events').send(event);
+        expect(response.status).toBe(500);
+
+        expect((await alice.get(`/api/events/${event.id}`)).status).toBe(404);
+        
+        expect((await alice.post('/api/events').send(makeEvent("2026-07-01"))).status).toBe(200);
+    });
 });
