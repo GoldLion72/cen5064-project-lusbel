@@ -56,59 +56,66 @@ After the frontend is running, open up the localhost link in a browser to see th
 
 | Tier | Responsibilities in THIS system |
 |------|--------------------------------|
-| Presentation | WorkoutView – modal where the user can fill out the details of their workout. CalendarView – allows the user to create an event and view all the events they have created. ProgressView – shows user if they have progressed |
-| Service | getEvents() – responsible for retrieving all the events that will be used in the presentation to load the events, through an API call. handleSave() – responsible for making an API call with the data that needs to be saved. Also returns the workout event that was newly created. |
-| Domain | Workout – must have at least 1 exercise chosen. Progress – a user makes progress if, for example, the number of sets of a certain exercise, increases within the specified date range. |
-| Data | retreiveEvents() – gets all the workout events stored in the database via SQL queries. getEvent()- responsible for retrieving an event with a certain event ID using SQL queries. insertEvent() – responsible for inserting a workout event in the database using SQL queries. |
+| Presentation | `App.vue` – navbar with the logged-in user, Log out button, and side menu. `LoginView.vue` – login form. `CreateAccountView.vue` – sign-up form. `CalendarView.vue` – calendar showing the user's workouts; add and delete workouts. `WorkoutView.vue` – modal for entering a workout's exercises. `ProgressView.vue` – pick a date range, exercise, and metric to see if progress was made. `ProgressChart.vue` / `LineChart.vue` / `BarChart.vue` – chart the progress results. `NotificationModal.vue` – shows success and error messages. `router/authGuard.js` – sends logged-out users to the login page. |
+| Service | **Frontend:** `apiClient.js` – one place for the API URL; sends the auth cookie. `authApi.js` – register, login, logout, and current-user calls. `useAuth.js` – shared login state. `useLogin.js` / `useCreateAccount.js` – form logic for login and sign-up. `useEvents.js` – get, save, and delete workouts. `useProgress.js` – search progress data. **Backend:** `routes/*.js` – map URLs to controllers. `requireAuth.js` – checks the login cookie. `authController.js` / `eventsController.js` / `progressController.js` – handle HTTP requests and responses. `authService.js` – registration and login logic. `passwordHasher.js` – hashes passwords (bcrypt). `tokenService.js` – creates and checks JWTs. |
+| Domain | `domain/workout.js` – a workout needs at least one exercise with valid sets, reps, and weight. `domain/progress.js` – date range must be valid; progress is made when the last value is greater than the first. `domain/account.js` – valid email, password of at least 8 characters with a letter and a number, emails stored in lowercase. |
+| Data | `db/index.js` + `schema.sql` – SQLite connection and the `USERS`, `EVENT`, and `EVENT_EXERCISES` tables. `usersModel.js` – find and insert users. `eventsModel.js` – get, insert, and delete workouts for the logged-in user; inserts and deletes run in a transaction. `progressModel.js` + `ProgressExerciseFactory.js` – pick the right query (`SetsExercises`, `RepsExercises`, or `WeightExercises`) for the chosen metric. |
 
 ### C4 — Context & Container (Session 3 studio)
 
 ```mermaid
-%% Replace this placeholder with YOUR system's context diagram.
 flowchart TB
-    user([WholeFit User]) -->|uses application by creating workouts as events in a calendar| system[WholeFit Web Application]
-    system -->|stores data in| db[(SQL Relational Database)]
+    user([WholeFit User]) -->|uses application by creating a user account, logging in, creating workouts as events in a calendar, and viewing progress| system[WholeFit Web Application]
+    system -->|stores data in| db[(SQLite)]
 ```
 
 ```mermaid
-%% Container view: your containers should match the tier table above.
 flowchart TB
     subgraph WholeFit [WholeFit Web Application]
-        ui[Web UI<br/>Vue 3 frontend] --> api[Application / Service<br/>interacts with REST API written in express.js]
-        api --> domain[Workout Modal<br/> Validates business logic, like ensuring a workout has exercises selected.]
-        domain --> db[(Database<br/>Stores all the data.)]
+        ui[Web UI<br/>JS + Vue 3 Frontend that runs in the browser] --> api[Application / Service<br/>Node.js + Express that contains routes, controllers, models, and auth. ]
+        api --> domain[Workout Modal<br/> contains business logic, like ensuring a workout has exercises selected, the email entered has a valid format, etc.]
+        domain --> db[(SQLite Database<br/>Stores user and workout data.)]
     end
 ```
 
 ### UML — Class & Sequence (Session 3 studio)
 
 ```mermaid
-%% Class diagram: your 3–4 core domain classes.
+%% Class diagram: core domain classes. Methods are the domain rules in backend/src/domain/.
 classDiagram
-    class WorkoutView {
+    class User {
         -id: String
-        -workoutDate: String
-        -exerciseOptions: Array of Object [exercise option objects]
-        -exercises: Array of Object [Exercise object]
-        +addExercise()
-        +sendData()
+        -email: String
+        -passwordHash: String
+        +isValidEmail(email) Boolean
+        +isStrongPassword(password) Boolean
+        +normalizeEmail(email) String
     }
-    class ProgressView {
-       -workoutEvents: Array of Object [Event objects]
-       -startDate: string
-       -endDate: string
-       +getEvents()
-       +plotEvents()
+    class WorkoutEvent {
+        -id: String
+        -userId: String
+        -title: String
+        -start: String
+        -allDay: Boolean
+        +hasAnExercise() Boolean
     }
-    class Calendar {
-      -showWorkout: Boolean
-      -workoutEvents: Array of Object [Event object]
-      -currentEvent: Object [Event object]
-      -calendarOptions: Object
-      +closeModal(value)
-      +getEvents()
-      +handleSave()
+    class Exercise {
+        -exerciseName: String
+        -sets: Integer
+        -reps: Integer
+        -weight: Integer
     }
+    class Progress {
+        -startDate: String
+        -endDate: String
+        -exercise: String
+        -metric: String
+        +areDatesValid(startDate, endDate) Boolean
+        +wasProgressMade(events) Boolean
+    }
+    User "1" --> "*" WorkoutEvent : logs
+    WorkoutEvent "1" *-- "1..*" Exercise : contains
+    Progress ..> WorkoutEvent : measures over a date range
 ```
 
 ```mermaid
