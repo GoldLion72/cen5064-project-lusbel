@@ -5,10 +5,12 @@ import App from './App.vue'
 import CalendarView from './components/CalendarView.vue'
 import ProgressView from './components/ProgressView.vue'
 import { workoutOptions } from './config/workoutOptions.js'
+import CreateAccountView from './components/CreateAccountView.vue'
 const {exerciseOptions, metricOptions} = workoutOptions
 
 export const routes = [
   { path: '/', redirect: '/calendar' },
+  { path: '/createaccount', name: 'createaccount', component: CreateAccountView},
   { path: '/calendar', name: 'calendar', component: CalendarView },
   { path: '/progress', name: 'progress', component: ProgressView, props: {exerciseOptions, metricOptions} },
   { path: '/:pathMatch(.*)*', redirect: '/calendar' }
