@@ -14,7 +14,7 @@ const {email, password, hasError, createAccount} = useCreateAccount();
                     <div class="field">
                         <label class="label">Email</label>
                         <div class="control has-icons-left">
-                            <input id="emailInput" class="input" type="text" v-model="email" />
+                            <input id="emailInput" class="input" placeholder="Email" type="text" v-model="email" />
                             <span class="icon is-small is-left">
                                 <i class="fas fa-envelope"></i>
                             </span>
