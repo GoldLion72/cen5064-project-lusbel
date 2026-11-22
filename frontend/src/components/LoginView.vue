@@ -1,39 +1,42 @@
 <script setup>
-import {ref} from 'vue'
+import { useLogin } from '../composables/useLogin';
 
-const username = ref("")
-const password = ref("")
+const {email, password, hasError, login} = useLogin();
 
-const login = () => {
-    // do API call here
-}
 </script>
 
 <template>
-    <div class="card">
-        <header class="card-header">
-            <p class="card-header-title">Login</p>
-        </header>
-        <div class="card-content">
-            <div class="content">
-                <div class="field">
-                    <label class="label">Username</label>
-                    <div class="contral has-icons-left">
-                        <input class="input" type="text" placeholder="Username" v-model="username" />
-                        <span class="icon is-small is-left">
-                            <i class="fa-sold fa-user"></i>
-                        </span>
+    <div class="hero is-fullheight">
+        <div class="hero-head">
+            <div class="container">
+                <div class="box">
+                    <p class="title">Login</p>
+                    <div class="field">
+                        <label class="label">Email</label>
+                        <div class="control has-icons-left">
+                            <input class="input" type="text" placeholder="Email" v-model="email" />
+                            <span class="icon is-small is-left">
+                                <i class="fas fa-envelope"></i>
+                            </span>
+                        </div>
                     </div>
-                </div>
 
-                <div class="field">
-                    <label class="label">Password</label>
-                    <div class="control has-icons-left">
-                        <input class="input" type="password" placeholder="Password" v-model="password" />
-                        <span class="icon is-small is-left">
-                            <i class="fa-solid fa-lock"></i>
-                        </span>
+                    <div class="field">
+                        <label class="label">Password</label>
+                        <div class="control has-icons-left">
+                            <input class="input" type="password" placeholder="Password" v-model="password" />
+                            <span class="icon is-small is-left">
+                                <i class="fa-solid fa-lock"></i>
+                            </span>
+                        </div>
                     </div>
+
+                    <div class="buttons">
+                        <button id="signInBtn" class="button is-primary" @click="login">Sign In</button>
+                    </div>
+
+                    <p class="help is-danger" v-if="hasError">Invalid email or password.</p>
+                    <RouterLink to="/createaccount">Don't have an account? Sign up here.</RouterLink>
                 </div>
             </div>
         </div>
