@@ -1,7 +1,7 @@
 <script setup>
 import { useLogin } from '../composables/useLogin';
 
-const {email, password, hasError, login} = useLogin();
+const {email, password, errorMessage, isSubmitting, login} = useLogin();
 
 </script>
 
@@ -9,35 +9,35 @@ const {email, password, hasError, login} = useLogin();
     <div class="hero is-fullheight">
         <div class="hero-head">
             <div class="container">
-                <div class="box">
+                <form class="box" @submit.prevent="login" novalidate>
                     <p class="title">Login</p>
                     <div class="field">
-                        <label class="label">Email</label>
+                        <label class="label" for="emailInput">Email</label>
                         <div class="control has-icons-left">
-                            <input class="input" type="text" placeholder="Email" v-model="email" />
+                            <input id="emailInput" class="input" type="email" placeholder="Email" autocomplete="email" v-model="email" />
                             <span class="icon is-small is-left">
-                                <i class="fas fa-envelope"></i>
+                                <i class="fa-solid fa-envelope"></i>
                             </span>
                         </div>
                     </div>
 
                     <div class="field">
-                        <label class="label">Password</label>
+                        <label class="label" for="passwordInput">Password</label>
                         <div class="control has-icons-left">
-                            <input class="input" type="password" placeholder="Password" v-model="password" />
+                            <input id="passwordInput" class="input" type="password" placeholder="Password" autocomplete="current-password" v-model="password" />
                             <span class="icon is-small is-left">
                                 <i class="fa-solid fa-lock"></i>
                             </span>
                         </div>
                     </div>
 
+                    <p class="help is-danger" v-if="errorMessage" role="alert">{{ errorMessage }}</p>
                     <div class="buttons">
-                        <button id="signInBtn" class="button is-primary" @click="login">Sign In</button>
+                        <button id="signInBtn" type="submit" class="button is-primary" :class="{'is-loading': isSubmitting}" :disabled="isSubmitting">Sign In</button>
                     </div>
 
-                    <p class="help is-danger" v-if="hasError">Invalid email or password.</p>
                     <RouterLink to="/createaccount">Don't have an account? Sign up here.</RouterLink>
-                </div>
+                </form>
             </div>
         </div>
     </div>

@@ -8,8 +8,18 @@ vi.mock('../components/CalendarView.vue', () => ({
   default: { name: 'CalendarView', template: '<div data-test="calendar-view">Calendar</div>' }
 }))
 
+// The shared auth store talks to the server through authApi; fake it so the user is logged in.
+const testUser = { id: 'user-1', email: 'tester@example.com' }
+vi.mock('../services/authApi.js', () => ({
+  me: vi.fn(async () => testUser),
+  login: vi.fn(async () => testUser),
+  register: vi.fn(async () => testUser),
+  logout: vi.fn(async () => ({}))
+}))
+
 import App from '../App.vue'
 import { routes, createAppRouter } from '../main.js'
+import { createAuthStore } from '../composables/useAuth.js'
 
 const mountAt = async (path, history = createMemoryHistory()) => {
   const router = createAppRouter(history)
@@ -128,5 +138,70 @@ describe('no page reload on tab switch', () => {
     it('should pass the exerciseOptions and metricOptions props', async () => {
 
     })
+  })
+})
+
+describe('auth routes', () => {
+  it('defines login and create account routes', () => {
+    const paths = routes.map(r => r.path)
+    expect(paths).toContain('/login')
+    expect(paths).toContain('/createaccount')
+  })
+
+  it('shows the logged-in user and the menu', async () => {
+    const { wrapper } = await mountAt('/calendar')
+    expect(wrapper.find('[data-test="current-user"]').text()).toBe(testUser.email)
+    expect(wrapper.find('.menu-list').exists()).toBe(true)
+  })
+})
+
+describe('auth guard', () => {
+  // A separate store whose fake API decides whether someone is logged in.
+  const routerWith = async (path, user) => {
+    const me = vi.fn(async () => { if (!user) throw new Error('401'); return user })
+    const auth = createAuthStore({ me })
+    const router = createAppRouter(createMemoryHistory(), auth)
+    router.push(path)
+    await router.isReady()
+    return { router, auth, me }
+  }
+
+  it('sends a logged-out user from /calendar to /login with a redirect back', async () => {
+    const { router } = await routerWith('/calendar', null)
+    expect(router.currentRoute.value.path).toBe('/login')
+    expect(router.currentRoute.value.query.redirect).toBe('/calendar')
+  })
+
+  it('sends a logged-out user from /progress to /login', async () => {
+    const { router } = await routerWith('/progress', null)
+    expect(router.currentRoute.value.path).toBe('/login')
+    expect(router.currentRoute.value.query.redirect).toBe('/progress')
+  })
+
+  it('sends a logged-out user from / to /login', async () => {
+    const { router } = await routerWith('/', null)
+    expect(router.currentRoute.value.path).toBe('/login')
+  })
+
+  it('lets a logged-out user open /login and /createaccount', async () => {
+    const { router } = await routerWith('/createaccount', null)
+    expect(router.currentRoute.value.path).toBe('/createaccount')
+    await router.push('/login')
+    expect(router.currentRoute.value.path).toBe('/login')
+  })
+
+  it('sends a logged-in user away from /login and /createaccount', async () => {
+    const { router } = await routerWith('/login', testUser)
+    expect(router.currentRoute.value.path).toBe('/calendar')
+    await router.push('/createaccount')
+    expect(router.currentRoute.value.path).toBe('/calendar')
+  })
+
+  it('asks the server who is logged in only once', async () => {
+    const { router, auth, me } = await routerWith('/calendar', testUser)
+    await router.push('/progress')
+    await router.push('/calendar')
+    expect(auth.isAuthenticated.value).toBe(true)
+    expect(me).toHaveBeenCalledTimes(1)
   })
 })

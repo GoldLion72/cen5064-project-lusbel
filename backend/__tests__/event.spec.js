@@ -10,18 +10,43 @@ vi.mock(import('../src/models/eventsModel'), async (importOriginal) => {
 import request from 'supertest';
 import app from '../src/app';
 import {retrieveEvents, getEvent} from '../src/models/eventsModel';
-import {describe, it, expect, vi, afterEach} from 'vitest';
+import {describe, it, expect, vi, afterEach, beforeAll} from 'vitest';
+import { loggedInAgent } from './helpers/authAgent.js';
 
 const testID = crypto.randomUUID();
+let agent;
+let user;
+
+beforeAll(async () => {
+    ({agent, user} = await loggedInAgent(app));
+});
+
 afterEach(() => {
     vi.clearAllMocks();
+});
+
+describe('authentication on /api/events', () => {
+    it('returns 401 without an auth cookie', async () => {
+        const response = await request(app).get('/api/events');
+
+        expect(response.status).toBe(401);
+        expect(retrieveEvents).not.toHaveBeenCalled();
+    });
+
+    it('passes the logged-in user ID to the model', async () => {
+        retrieveEvents.mockReturnValue([]);
+
+        await agent.get('/api/events');
+
+        expect(retrieveEvents).toHaveBeenCalledWith(user.id);
+    });
 });
 
 describe('GET /api/events', () => {
     it('returns JSON', async () => {
         retrieveEvents.mockReturnValue([]);
 
-        const response = await request(app).get('/api/events');
+        const response = await agent.get('/api/events');
         
         expect(response.status).toBe(200);
         
@@ -41,7 +66,7 @@ describe('GET /api/events', () => {
                 }
             ]
         )
-        const response = await request(app).get('/api/events');
+        const response = await agent.get('/api/events');
         
         expect(retrieveEvents).toHaveBeenCalled();
         expect(response.status).toBe(200);
@@ -54,7 +79,7 @@ describe('GET /api/events', () => {
     it('is considered successful if no events are returned.', async () => {
         retrieveEvents.mockReturnValue([]);
 
-        const response = await request(app).get('/api/events');
+        const response = await agent.get('/api/events');
 
         expect(response.status).toBe(200);
         expect(response.body.success).toBe(true);
@@ -74,11 +99,20 @@ describe('GET /api/event/:id', () => {
             }
         })
 
-        const response = await request(app).get(`/api/events/${testID}`)
+        const response = await agent.get(`/api/events/${testID}`)
         
         expect(getEvent).toHaveBeenCalled();
         expect(response.status).toBe(200);
         expect(response.body.data.id).toBe(testID);
+    })
+
+    it('returns 404 when the event is not found for this user', async () => {
+        getEvent.mockReturnValue(null);
+
+        const response = await agent.get(`/api/events/${testID}`);
+
+        expect(response.status).toBe(404);
+        expect(response.body.success).toBe(false);
     })
 });
 
@@ -95,11 +129,11 @@ describe('DELETE /api/events/:id', () => {
             }
         };
 
-        const postResponse = await request(app).post('/api/events').send(dummyEvent);
+        const postResponse = await agent.post('/api/events').send(dummyEvent);
 
         expect(postResponse.status).toBe(200);
 
-        const deleteResponse = await request(app).delete(`/api/events/${randomID}`);
+        const deleteResponse = await agent.delete(`/api/events/${randomID}`);
 
         expect(deleteResponse.status).toBe(200);
     })
@@ -107,7 +141,7 @@ describe('DELETE /api/events/:id', () => {
     it('fails deleting an event that does not exist', async () => {
         const randomID = crypto.randomUUID();
 
-        const response = await request(app).delete(`/api/events/${randomID}`);
+        const response = await agent.delete(`/api/events/${randomID}`);
 
         expect(response.status).toBe(500);
     })
@@ -124,7 +158,7 @@ describe('POST /api/events', () => {
                 workoutExercises:[{exerciseName: "benchPress", sets: 5, reps: 5, weight: 205}]
             }
         }
-        const response = await request(app).post('/api/events').send(dummyEvent);
+        const response = await agent.post('/api/events').send(dummyEvent);
 
         expect(response.status).toBe(200);
         expect(response.body.success).toBe(true);
@@ -132,7 +166,7 @@ describe('POST /api/events', () => {
     });
 
     it('does not return 200 for a bad request', async () => {
-        const response = await request(app).post('/api/events').send({});
+        const response = await agent.post('/api/events').send({});
 
         expect([400, 500]).toContain(response.status);
         expect(response.body.success).toBe(false);
@@ -149,7 +183,7 @@ describe('POST /api/events', () => {
             }
         };
 
-        const response = await request(app).post('/api/events').send(dummyData);
+        const response = await agent.post('/api/events').send(dummyData);
 
         expect(response.status).toBe(400);
     })
@@ -175,11 +209,11 @@ describe('POST /api/events', () => {
             }
         };
 
-        const firstResponse = await request(app).post('/api/events').send(dummyEventOne);
+        const firstResponse = await agent.post('/api/events').send(dummyEventOne);
 
         expect(firstResponse.status).toBe(200);
 
-        const secondResponse = await request(app).post('/api/events').send(dummyEventTwo);
+        const secondResponse = await agent.post('/api/events').send(dummyEventTwo);
 
         expect(secondResponse.status).toBe(400);
         expect(secondResponse.body.success).toBe(false);

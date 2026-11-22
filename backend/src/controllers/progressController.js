@@ -12,7 +12,7 @@ function findEvents(req, res) {
         return;
     }
 
-    const events = retrieveEvents(startDate, endDate, exercise, metric);
+    const events = retrieveEvents(req.user.id, startDate, endDate, exercise, metric);
 
     if(events.length === 0) {
         res.status(400).json({success: false, message: "No events found.", data: {}})

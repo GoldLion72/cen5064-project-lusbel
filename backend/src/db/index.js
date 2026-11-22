@@ -7,6 +7,7 @@ const fileToUse = process.env.NODE_ENV === "test" ? ":memory:" : "app.db";
 const db = new Database(fileToUse);
 
 db.pragma('journal_mode = WAL');
+db.pragma('foreign_keys = ON');
 
 try {
     const __dirname = path.dirname(fileURLToPath(import.meta.url));
