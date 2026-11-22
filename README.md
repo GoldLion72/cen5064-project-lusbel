@@ -15,7 +15,8 @@ This paragraph is your approval request — see the Project Brief, Section 2.]--
 This project will be focused on creating a web application that allows users to track their fitness progress. Anyone who is interested in tracking their fitness regimen can use this app. The current planned core features for this project are allowing the user to create a workout, allowing them to schedule their created workout, and having the web app inform them if they are making any progress (they spent more time exercising this week than the previous week, for example).
 
 ## How to run
-Prerequisites: Install git, and the latest version of Node on your machine.
+Prerequisites: Install git, and the latest version of Node on your machine. The CI file uses Node 22 and 24, so those should work as well. 
+NOTE: The `npm install` command in the backend may fail for the `better-sqlite3` dependency, because it requires a C++ toolset. To resolve this issue on Windows, install the Visual Studio Build Tools with the "Desktop development with C++" workload (and Python 3). Afterwards, try running `npm install` in the backend directory again.
 
 Open up a terminal and run the following commands:
 ```

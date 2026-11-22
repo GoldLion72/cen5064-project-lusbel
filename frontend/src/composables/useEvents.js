@@ -1,11 +1,12 @@
 import {ref, onMounted, toValue} from 'vue'
+import { apiFetch } from '../services/apiClient.js'
 
 export function useEvents(showWorkout, showNotification, setNotification) {
     const workoutEvents = ref([]);
 
     const getEvents = async () => {
         try {
-            const response = await fetch('http://localhost:3000/api/events');
+            const response = await apiFetch('/events');
             if(response.ok) {
                 const result = await response.json();
                 if(result.success) {
@@ -28,7 +29,7 @@ export function useEvents(showWorkout, showNotification, setNotification) {
         if(!eventID) return;
         
         try {
-            const response = await fetch(`http://localhost:3000/api/events/${eventID}`, {
+            const response = await apiFetch(`/events/${eventID}`, {
                 method: "DELETE"
             });
     
@@ -51,7 +52,7 @@ export function useEvents(showWorkout, showNotification, setNotification) {
 
     const retrieveEvent = async (id) => {
         try {
-            const response = await fetch(`http://localhost:3000/api/events/${id}`);
+            const response = await apiFetch(`/events/${id}`);
 
             if(!response.ok) {
                 throw new Error("Failed to get event.");
@@ -83,7 +84,7 @@ export function useEvents(showWorkout, showNotification, setNotification) {
         }
         
         try {
-            const response = await fetch("http://localhost:3000/api/events", {
+            const response = await apiFetch("/events", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"

@@ -1,40 +1,43 @@
 <script setup>
-import {ref} from 'vue'
+import { useLogin } from '../composables/useLogin';
 
-const username = ref("")
-const password = ref("")
+const {email, password, errorMessage, isSubmitting, login} = useLogin();
 
-const login = () => {
-    // do API call here
-}
 </script>
 
 <template>
-    <div class="card">
-        <header class="card-header">
-            <p class="card-header-title">Login</p>
-        </header>
-        <div class="card-content">
-            <div class="content">
-                <div class="field">
-                    <label class="label">Username</label>
-                    <div class="contral has-icons-left">
-                        <input class="input" type="text" placeholder="Username" v-model="username" />
-                        <span class="icon is-small is-left">
-                            <i class="fa-sold fa-user"></i>
-                        </span>
+    <div class="hero is-fullheight">
+        <div class="hero-head">
+            <div class="container">
+                <form class="box" @submit.prevent="login" novalidate>
+                    <p class="title">Login</p>
+                    <div class="field">
+                        <label class="label" for="emailInput">Email</label>
+                        <div class="control has-icons-left">
+                            <input id="emailInput" class="input" type="email" placeholder="Email" autocomplete="email" v-model="email" />
+                            <span class="icon is-small is-left">
+                                <i class="fa-solid fa-envelope"></i>
+                            </span>
+                        </div>
                     </div>
-                </div>
 
-                <div class="field">
-                    <label class="label">Password</label>
-                    <div class="control has-icons-left">
-                        <input class="input" type="password" placeholder="Password" v-model="password" />
-                        <span class="icon is-small is-left">
-                            <i class="fa-solid fa-lock"></i>
-                        </span>
+                    <div class="field">
+                        <label class="label" for="passwordInput">Password</label>
+                        <div class="control has-icons-left">
+                            <input id="passwordInput" class="input" type="password" placeholder="Password" autocomplete="current-password" v-model="password" />
+                            <span class="icon is-small is-left">
+                                <i class="fa-solid fa-lock"></i>
+                            </span>
+                        </div>
                     </div>
-                </div>
+
+                    <p class="help is-danger" v-if="errorMessage" role="alert">{{ errorMessage }}</p>
+                    <div class="buttons">
+                        <button id="signInBtn" type="submit" class="button is-primary" :class="{'is-loading': isSubmitting}" :disabled="isSubmitting">Sign In</button>
+                    </div>
+
+                    <RouterLink to="/createaccount">Don't have an account? Sign up here.</RouterLink>
+                </form>
             </div>
         </div>
     </div>

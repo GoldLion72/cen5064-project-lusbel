@@ -1,4 +1,5 @@
 import {reactive, ref} from 'vue';
+import { apiFetch } from '../services/apiClient.js';
 
 export function useProgress() {
     const createEmptyError = () => ({
@@ -35,7 +36,7 @@ export function useProgress() {
             errorFound.value = false;
             Object.assign(error, createEmptyError());
 
-            const response = await fetch(`http://localhost:3000/api/progress?startDate=${startDate.value}&endDate=${endDate.value}&exercise=${exercise.value}&metric=${metric.value}`, {signal});
+            const response = await apiFetch(`/progress?startDate=${startDate.value}&endDate=${endDate.value}&exercise=${exercise.value}&metric=${metric.value}`, {signal});
             const data = await response.json();
             
             if(signal.aborted) {
