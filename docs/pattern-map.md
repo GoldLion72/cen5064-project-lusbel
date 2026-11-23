@@ -1,5 +1,5 @@
 ### Design Patterns
-- Factory method: No genuine fit, because there is only one type of "product" (a workout event) where all instance share the same shape.
+- Factory method: ProgressExerciseFactory.js somewhat applies this pattern, in the sense that the ProgressExerciseFactory uses a function that returns a certain object based on the metric being used. The object has access to the getExercises method, which uses slightly different SQL based on the metric. The family of “products” in this case would be the exercise SQL queries. However, the Open/Closed principle is not taken care of, because of the switch statement involved. Another metric would mean adding another case to the switch statement.
 
 - Abstract factory: No genuine fit, because I don't see a family of products, as there is only one product which is described in the factory method bullet.
 
@@ -7,8 +7,4 @@
 
 - Prototype: No genuine fit, because there is no feature currently that requires cloning an object, such as an existing workout event object.
 
-- Singleton: Genuine fit, especially for the database configuration, where one database instance is used across the entire application in the backend, but it can also be used for configurations, such as the exercise options, which will be used in both ProgressView.vue and WorkoutView.vue in the frontend. workoutOptions.js exports one object and the ES module cache gives every import access to the same instance. Additionally, the object is immutable through the use of Object.freeze() on its properties as well as itself. Immutability and the same instance being reused are separate concerns, but the workoutOptions.js file addresses both. In other words, I wanted a single object isntance to be used throughout the entire browser, and I also don't want to change throughout the application's run.
-
-  - The login state in the frontend (`useAuth.js`) also uses this approach: `useAuth()` always returns the same store, so the navbar, the route guard, and the login/create account forms all agree on who is logged in. `createAuthStore()` is exported separately so tests can build their own store with a fake API.
-
-- Strategy (with dependency injection): Genuine fit for authentication. `authService.js` depends on a password hasher (`{hash, verify}`) and a token service (`{sign, verify}`) that are passed in, instead of using bcrypt or jsonwebtoken directly. `services/index.js` is the only place that picks the real implementations. This means the hashing algorithm or the token type can be swapped without editing `authService.js`, and the unit tests in `authService.spec.js` use simple fakes with no database.
+- Singleton: Genuine fit, especially for the database configuration, where one database instance is used across the entire application in the backend (db/index.js), but it can also be used for configurations, such as the exercise options, which is used in both ProgressView.vue and WorkoutView.vue in the frontend (config/workoutOptions.js). useAuth.js also uses this pattern, because useAuth always returns the same auth store with createAuthStore().
