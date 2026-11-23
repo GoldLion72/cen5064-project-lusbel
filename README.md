@@ -73,7 +73,7 @@ flowchart TB
 flowchart TB
     subgraph WholeFit [WholeFit Web Application]
         ui[Web UI<br/>JS + Vue 3 Frontend that runs in the browser] --> api[Application / Service<br/>Node.js + Express that contains routes, controllers, models, and auth. ]
-        api --> domain[Workout Modal<br/> contains business logic, like ensuring a workout has exercises selected, the email entered has a valid format, etc.]
+        api --> domain[Domain<br/> contains business logic, like ensuring a workout has exercises selected, the email entered has a valid format, etc.]
         domain --> db[(SQLite Database<br/>Stores user and workout data.)]
     end
 ```
