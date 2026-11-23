@@ -142,6 +142,7 @@ Decisions live in [`docs/adr/`](docs/adr/). Start with ADR-001 in Session 4.
 | [001](docs/adr/adr-001.md) | What is being built | proposed |
 | [002](docs/adr/adr-002.md) | Use Vue Framework instead of React | proposed |
 | [003](docs/adr/adr-003.md) | Using SQLite over MySQL or Postgres | proposed |
+| [004](docs/adr/adr-004.md) | JWT in an httpOnly Cookie for Authentication instead of session stores in DB | proposed |
 
 ## Weekly log (optional but recommended)
 
